@@ -149,18 +149,19 @@ export function AppSidebar() {
         </button>
       </div>
 
-      {/* User Profile */}
-      <div className="px-4 py-4 border-t border-sidebar-border">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-sm font-semibold text-primary-foreground">
-            {initials}
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-sidebar-foreground truncate">{displayName}</p>
-            <p className="text-xs text-sidebar-foreground/60 truncate">{displayRole}</p>
-          </div>
+      {/* User Profile - clickable to Profile page */}
+      <Link
+        to="/profile"
+        className="px-4 py-4 border-t border-sidebar-border flex items-center gap-3 hover:bg-sidebar-accent/50 transition-colors rounded-none"
+      >
+        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-sm font-semibold text-primary-foreground shrink-0">
+          {initials}
         </div>
-      </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-medium text-sidebar-foreground truncate">{displayName}</p>
+          <p className="text-xs text-sidebar-foreground/60 truncate">{displayRole}</p>
+        </div>
+      </Link>
     </div>
   );
 }

@@ -29,6 +29,7 @@ import EmployeeDashboard from "./pages/EmployeeDashboard";
 import ClientAuth from "./pages/ClientAuth";
 import Login from "./pages/Login";
 import ChangePassword from "./pages/ChangePassword";
+import Profile from "./pages/Profile";
 import TodayWork from "./pages/TodayWork";
 import NotFound from "./pages/NotFound";
 
@@ -120,6 +121,14 @@ const App = () => (
             element={
               <ProtectedRoute userType="employee">
                 <Settings />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute userType="any">
+                <Profile />
               </ProtectedRoute>
             }
           />
