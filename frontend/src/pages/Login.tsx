@@ -41,11 +41,11 @@ const Login = () => {
     }
   }, [isRestrictedCEO, isEmployee]);
 
-  // Set body background to dark when login page mounts
+  // Set body background to light when login page mounts
   useEffect(() => {
     const originalBackground = document.body.style.backgroundColor;
-    document.body.style.backgroundColor = '#0a0a0a';
-    document.documentElement.style.backgroundColor = '#0a0a0a';
+    document.body.style.backgroundColor = '#ffffff';
+    document.documentElement.style.backgroundColor = '#ffffff';
     
     return () => {
       document.body.style.backgroundColor = originalBackground;
@@ -164,7 +164,7 @@ const Login = () => {
 
   if (employeeLoading || clientLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#0a0a0a' }}>
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
@@ -172,8 +172,8 @@ const Login = () => {
 
   return (
     <div 
-      className="min-h-screen flex items-center justify-center p-4 fixed inset-0 overflow-y-auto" 
-      style={{ backgroundColor: '#0a0a0a', zIndex: 9999 }}
+      className="min-h-screen flex items-center justify-center p-4 fixed inset-0 overflow-y-auto bg-background" 
+      style={{ zIndex: 9999 }}
     >
       <div className="w-full max-w-md">
         {/* Logo Section */}
@@ -192,16 +192,15 @@ const Login = () => {
               }}
             />
           </div>
-          <h1 className="text-2xl font-bold text-white mb-2">Welcome Back</h1>
-          <p className="text-sm text-gray-400">Sign in to access your dashboard</p>
-          {/* Theme: Black - Updated v3 - Cache Fix */}
+          <h1 className="text-2xl font-bold text-foreground mb-2">Welcome Back</h1>
+          <p className="text-sm text-muted-foreground">Sign in to access your dashboard</p>
         </div>
 
-        <Card className="w-full shadow-2xl border border-gray-800 bg-gray-900/95 backdrop-blur-sm">
+        <Card className="w-full shadow-2xl border border-border bg-card">
           <CardContent className="pt-6">
             {/* User Type Selection */}
             <div className="mb-6">
-              <Label className="text-sm font-semibold mb-4 block text-gray-300">I am a:</Label>
+              <Label className="text-sm font-semibold mb-4 block text-foreground">I am a:</Label>
               <div className="grid grid-cols-2 gap-3">
                 <Button
                   type="button"
@@ -209,15 +208,15 @@ const Login = () => {
                   className={`h-auto py-4 flex flex-col items-center gap-2 transition-all ${
                     userType === 'employee' 
                       ? 'bg-primary hover:bg-primary/90 shadow-md' 
-                      : 'hover:bg-gray-800 border-gray-700 text-gray-300'
+                      : 'hover:bg-muted'
                   }`}
                   onClick={() => {
                     setUserType('employee');
                     setError(null);
                   }}
                 >
-                  <Users className={`w-5 h-5 ${userType === 'employee' ? 'text-primary-foreground' : 'text-gray-400'}`} />
-                  <span className={`font-medium ${userType === 'employee' ? 'text-primary-foreground' : 'text-gray-300'}`}>Employee</span>
+                  <Users className={`w-5 h-5 ${userType === 'employee' ? 'text-primary-foreground' : 'text-muted-foreground'}`} />
+                  <span className={`font-medium ${userType === 'employee' ? 'text-primary-foreground' : 'text-foreground'}`}>Employee</span>
                 </Button>
                 <Button
                   type="button"
@@ -225,22 +224,22 @@ const Login = () => {
                   className={`h-auto py-4 flex flex-col items-center gap-2 transition-all ${
                     userType === 'client' 
                       ? 'bg-primary hover:bg-primary/90 shadow-md' 
-                      : 'hover:bg-gray-800 border-gray-700 text-gray-300'
+                      : 'hover:bg-muted'
                   }`}
                   onClick={() => {
                     setUserType('client');
                     setError(null);
                   }}
                 >
-                  <Building2 className={`w-5 h-5 ${userType === 'client' ? 'text-primary-foreground' : 'text-gray-400'}`} />
-                  <span className={`font-medium ${userType === 'client' ? 'text-primary-foreground' : 'text-gray-300'}`}>Client</span>
+                  <Building2 className={`w-5 h-5 ${userType === 'client' ? 'text-primary-foreground' : 'text-muted-foreground'}`} />
+                  <span className={`font-medium ${userType === 'client' ? 'text-primary-foreground' : 'text-foreground'}`}>Client</span>
                 </Button>
               </div>
             </div>
 
             <form onSubmit={handleSignIn} className="space-y-5">
               <div className="space-y-2">
-                <Label htmlFor="signin-email" className="text-sm font-semibold text-gray-300">Email</Label>
+                <Label htmlFor="signin-email" className="text-sm font-semibold text-foreground">Email</Label>
                 <Input
                   id="signin-email"
                   type="email"
@@ -249,11 +248,11 @@ const Login = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={loading}
                   required
-                  className="h-11 bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus:border-primary focus:ring-primary"
+                  className="h-11"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="signin-password" className="text-sm font-semibold text-gray-300">Password</Label>
+                <Label htmlFor="signin-password" className="text-sm font-semibold text-foreground">Password</Label>
                 <div className="relative">
                   <Input
                     id="signin-password"
@@ -263,13 +262,13 @@ const Login = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     disabled={loading}
                     required
-                    className="pr-10 h-11 bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 focus:border-primary focus:ring-primary"
+                    className="pr-10 h-11"
                   />
                   <Button
                     type="button"
                     variant="ghost"
                     size="icon"
-                    className="absolute right-0 top-0 h-full px-3 text-gray-400 hover:text-gray-200"
+                    className="absolute right-0 top-0 h-full px-3 text-muted-foreground hover:text-foreground"
                     onClick={() => setShowPassword((v) => !v)}
                     tabIndex={-1}
                     aria-label={showPassword ? 'Hide password' : 'Show password'}
@@ -316,7 +315,7 @@ const Login = () => {
               </Button>
 
               {userType === 'client' && (
-                <p className="text-xs text-gray-400 text-center mt-4 leading-relaxed">
+                <p className="text-xs text-muted-foreground text-center mt-4 leading-relaxed">
                   Your login credentials are provided by your account manager.
                   <br />
                   Contact support if you need access.
@@ -327,7 +326,7 @@ const Login = () => {
         </Card>
         
         {/* Footer */}
-        <p className="text-center text-xs text-gray-500 mt-6">
+        <p className="text-center text-xs text-muted-foreground mt-6">
           © 2026 amzDUDES. All rights reserved.
         </p>
       </div>

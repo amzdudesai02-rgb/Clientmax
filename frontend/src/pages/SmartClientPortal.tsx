@@ -276,8 +276,8 @@ const SmartClientPortal = () => {
               Plan
             </TabsTrigger>
             <TabsTrigger value="settings" className="gap-2">
-              <Settings className="w-4 h-4 hidden sm:block" />
-              Settings
+              <Settings className="w-4 h-4" />
+              <span className="hidden sm:inline">Settings</span>
             </TabsTrigger>
           </TabsList>
 
