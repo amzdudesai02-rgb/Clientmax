@@ -3,6 +3,7 @@ import { MetricCard } from '@/components/dashboard/MetricCard';
 import { ActivityFeed } from '@/components/dashboard/ActivityFeed';
 import { OpportunityCards } from '@/components/dashboard/OpportunityCards';
 import { TeamUtilizationCard } from '@/components/dashboard/TeamUtilizationCard';
+import { QuickDataUpload } from '@/components/dashboard/QuickDataUpload';
 import { useDashboardMetrics } from '@/hooks/useDashboardMetrics';
 import { 
   mockActivities, 
@@ -109,6 +110,9 @@ const Dashboard = () => {
 
       {/* Main Content - Single Column */}
       <div className="space-y-8">
+        {/* Quick Data Upload */}
+        <QuickDataUpload />
+
         {/* Team Utilization */}
         <TeamUtilizationCard teamLeads={mockTeamLeads} />
 
