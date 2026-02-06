@@ -151,7 +151,7 @@ export function AppSidebar() {
 
       {/* User Profile - clickable to Profile page */}
       <Link
-        to="/profile"
+        to={employee ? "/employee-profile" : client ? "/client-profile" : "/profile"}
         className="px-4 py-4 border-t border-sidebar-border flex items-center gap-3 hover:bg-sidebar-accent/50 transition-colors rounded-none"
       >
         <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-sm font-semibold text-primary-foreground shrink-0">

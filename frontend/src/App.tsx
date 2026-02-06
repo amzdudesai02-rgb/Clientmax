@@ -30,6 +30,8 @@ import ClientAuth from "./pages/ClientAuth";
 import Login from "./pages/Login";
 import ChangePassword from "./pages/ChangePassword";
 import Profile from "./pages/Profile";
+import EmployeeProfile from "./pages/EmployeeProfile";
+import ClientProfile from "./pages/ClientProfile";
 import TodayWork from "./pages/TodayWork";
 import NotFound from "./pages/NotFound";
 
@@ -129,6 +131,22 @@ const App = () => (
             element={
               <ProtectedRoute userType="any">
                 <Profile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/employee-profile"
+            element={
+              <ProtectedRoute userType="employee">
+                <EmployeeProfile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/client-profile"
+            element={
+              <ProtectedRoute userType="client">
+                <ClientProfile />
               </ProtectedRoute>
             }
           />
