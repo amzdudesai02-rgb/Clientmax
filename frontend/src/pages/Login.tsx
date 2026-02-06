@@ -41,6 +41,18 @@ const Login = () => {
     }
   }, [isRestrictedCEO, isEmployee]);
 
+  // Set body background to dark when login page mounts
+  useEffect(() => {
+    const originalBackground = document.body.style.backgroundColor;
+    document.body.style.backgroundColor = '#0a0a0a';
+    document.documentElement.style.backgroundColor = '#0a0a0a';
+    
+    return () => {
+      document.body.style.backgroundColor = originalBackground;
+      document.documentElement.style.backgroundColor = '';
+    };
+  }, []);
+
   // Redirect if already authenticated, to the correct home by role (skip when showing CEO restriction)
   useEffect(() => {
     if (isRestrictedCEO) return;
@@ -152,14 +164,17 @@ const Login = () => {
 
   if (employeeLoading || clientLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-black">
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#0a0a0a' }}>
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-black p-4" style={{ backgroundColor: '#000000' }}>
+    <div 
+      className="min-h-screen flex items-center justify-center p-4 fixed inset-0 overflow-y-auto" 
+      style={{ backgroundColor: '#0a0a0a', zIndex: 9999 }}
+    >
       <div className="w-full max-w-md">
         {/* Logo Section */}
         <div className="text-center mb-8">
