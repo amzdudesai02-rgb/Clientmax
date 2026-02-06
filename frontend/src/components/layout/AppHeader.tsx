@@ -9,9 +9,12 @@ interface AppHeaderProps {
   subtitle?: string;
 }
 
+const ADMIN_EMAIL = 'junaid@amzdudes.com';
+
 export function AppHeader({ title, subtitle }: AppHeaderProps) {
   const { employee, user } = useAuth();
-  const isAdminJunaid = employee?.role === 'CEO' && (employee?.email === 'junaid@amzdudes.com' || user?.email === 'junaid@amzdudes.com');
+  const email = user?.email ?? employee?.email ?? '';
+  const isAdminJunaid = email.toLowerCase() === ADMIN_EMAIL && employee?.role === 'CEO';
 
   return (
     <header className="flex items-center justify-between px-8 py-4 border-b border-border bg-card">

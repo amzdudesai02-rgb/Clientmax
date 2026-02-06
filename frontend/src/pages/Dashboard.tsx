@@ -24,8 +24,11 @@ import {
 
 const Dashboard = () => {
   const { metrics, hiringMetrics } = useDashboardMetrics();
-  const { employee, user: authUser } = useAuth();
-  const welcomeName = employee?.name || authUser?.email?.split('@')[0] || 'there';
+  const { employee, user: authUser, loading: authLoading } = useAuth();
+  // Same display name as sidebar: employee name first, then email prefix
+  const welcomeName = authLoading
+    ? ''
+    : (employee?.name || authUser?.email?.split('@')[0] || 'there');
 
   const formatCurrency = (value: number) => {
     if (value >= 1000000) {
@@ -43,7 +46,7 @@ const Dashboard = () => {
   return (
     <AppLayout 
       title="Dashboard" 
-      subtitle={`Welcome back, ${welcomeName}. Here's what's happening with your agency.`}
+      subtitle={welcomeName ? `Welcome back, ${welcomeName}. Here's what's happening with your agency.` : "Welcome back. Here's what's happening with your agency."}
     >
       {/* Primary Metrics Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
