@@ -322,17 +322,23 @@ export function QuickDataUpload() {
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex items-center gap-3">
-          <Select value={importType} onValueChange={(value) => {
-            setImportType(value as ImportType);
-            setFile(null);
-            setParsedData([]);
-            setErrors([]);
-            if (fileInputRef.current) {
-              fileInputRef.current.value = '';
-            }
-          }}>
+          <Select 
+            value={importType} 
+            onValueChange={(value) => {
+              setImportType(value as ImportType);
+              setFile(null);
+              setParsedData([]);
+              setErrors([]);
+              if (fileInputRef.current) {
+                fileInputRef.current.value = '';
+              }
+            }}
+            disabled={isProcessing || isImporting}
+          >
             <SelectTrigger className="w-[140px]">
-              <SelectValue />
+              <SelectValue>
+                {importType === 'clients' ? 'Clients' : 'Employees'}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="clients">Clients</SelectItem>
