@@ -1,0 +1,7 @@
+project_id = "smsnjdohahfgivxzzygv"
+
+[functions.send-threshold-email]
+verify_jwt = false
+
+[functions.ai-assistant]
+verify_jwt = false
