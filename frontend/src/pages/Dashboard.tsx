@@ -5,6 +5,7 @@ import { OpportunityCards } from '@/components/dashboard/OpportunityCards';
 import { TeamUtilizationCard } from '@/components/dashboard/TeamUtilizationCard';
 import { QuickDataUpload } from '@/components/dashboard/QuickDataUpload';
 import { useDashboardMetrics } from '@/hooks/useDashboardMetrics';
+import { useAuth } from '@/hooks/useAuth';
 import { 
   mockActivities, 
   mockOpportunities,
@@ -23,6 +24,8 @@ import {
 
 const Dashboard = () => {
   const { metrics, hiringMetrics } = useDashboardMetrics();
+  const { employee, user: authUser } = useAuth();
+  const welcomeName = employee?.name || authUser?.email?.split('@')[0] || 'there';
 
   const formatCurrency = (value: number) => {
     if (value >= 1000000) {
@@ -40,7 +43,7 @@ const Dashboard = () => {
   return (
     <AppLayout 
       title="Dashboard" 
-      subtitle="Welcome back, John. Here's what's happening with your agency."
+      subtitle={`Welcome back, ${welcomeName}. Here's what's happening with your agency.`}
     >
       {/* Primary Metrics Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">

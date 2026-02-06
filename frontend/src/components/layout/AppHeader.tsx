@@ -2,6 +2,7 @@ import { Search, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { NotificationCenter } from '@/components/notifications/NotificationCenter';
+import { useAuth } from '@/hooks/useAuth';
 
 interface AppHeaderProps {
   title: string;
@@ -9,6 +10,9 @@ interface AppHeaderProps {
 }
 
 export function AppHeader({ title, subtitle }: AppHeaderProps) {
+  const { employee, user } = useAuth();
+  const isAdminJunaid = employee?.role === 'CEO' && (employee?.email === 'junaid@amzdudes.com' || user?.email === 'junaid@amzdudes.com');
+
   return (
     <header className="flex items-center justify-between px-8 py-4 border-b border-border bg-card">
       <div>
@@ -31,11 +35,13 @@ export function AppHeader({ title, subtitle }: AppHeaderProps) {
         {/* Notifications */}
         <NotificationCenter />
 
-        {/* Add Client */}
-        <Button className="gap-2">
-          <Plus className="w-4 h-4" />
-          Add Client
-        </Button>
+        {/* Add Client - only for Admin (Junaid) */}
+        {isAdminJunaid && (
+          <Button className="gap-2">
+            <Plus className="w-4 h-4" />
+            Add Client
+          </Button>
+        )}
       </div>
     </header>
   );
