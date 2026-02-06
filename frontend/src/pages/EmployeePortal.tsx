@@ -20,10 +20,12 @@ import {
   Loader2,
   Lightbulb,
   CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  Settings
 } from 'lucide-react';
 import { useDailyUpdates, useWeeklySummaries } from '@/hooks/useClientPortalData';
 import { useClients } from '@/hooks/useClients';
+import { ChangePasswordForm } from '@/components/settings/ChangePasswordForm';
 import { formatDistanceToNow, format, startOfWeek, endOfWeek } from 'date-fns';
 import {
   Select,
@@ -482,6 +484,19 @@ const EmployeePortal = () => {
                     )}
                   </div>
                 </ScrollArea>
+              </CardContent>
+            </Card>
+
+            {/* Settings Card */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Settings className="w-4 h-4" />
+                  Settings
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ChangePasswordForm />
               </CardContent>
             </Card>
           </div>

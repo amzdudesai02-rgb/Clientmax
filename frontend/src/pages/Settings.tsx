@@ -8,7 +8,6 @@ import { Switch } from '@/components/ui/switch';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DashboardMetricsSettings } from '@/components/settings/DashboardMetricsSettings';
-import { AccountManagement } from '@/components/settings/AccountManagement';
 import { ChangePasswordForm } from '@/components/settings/ChangePasswordForm';
 import { DataImport } from '@/components/settings/DataImport';
 import { useAuth } from '@/hooks/useAuth';
@@ -19,7 +18,6 @@ import {
   Bell, 
   Link, 
   BarChart3,
-  KeyRound,
   Shield,
   Upload,
   Loader2
@@ -73,12 +71,8 @@ const Settings = () => {
       title="Settings" 
       subtitle="Manage your account and preferences (Admin Panel)"
     >
-      <Tabs defaultValue="accounts" className="space-y-6">
+      <Tabs defaultValue="import" className="space-y-6">
         <TabsList className="flex-wrap">
-          <TabsTrigger value="accounts" className="gap-2">
-            <KeyRound className="w-4 h-4" />
-            Accounts
-          </TabsTrigger>
           <TabsTrigger value="import" className="gap-2">
             <Upload className="w-4 h-4" />
             Data Import
@@ -108,10 +102,6 @@ const Settings = () => {
             Integrations
           </TabsTrigger>
         </TabsList>
-
-        <TabsContent value="accounts">
-          <AccountManagement />
-        </TabsContent>
 
         <TabsContent value="security">
           <ChangePasswordForm />

@@ -27,7 +27,8 @@ import {
   Store,
   Building2,
   Link2,
-  Lock
+  Lock,
+  Settings
 } from 'lucide-react';
 import { useClients, DBClient } from '@/hooks/useClients';
 import { useClientAuth } from '@/hooks/useClientAuth';
@@ -40,6 +41,7 @@ import {
   useClientPlans
 } from '@/hooks/useClientPortalData';
 import { ReportGenerator } from '@/components/reports/ReportGenerator';
+import { ChangePasswordForm } from '@/components/settings/ChangePasswordForm';
 import { format, formatDistanceToNow, isPast, isFuture } from 'date-fns';
 import {
   Dialog,
@@ -248,7 +250,7 @@ const SmartClientPortal = () => {
 
       <div className="container mx-auto px-4 py-6">
         <Tabs defaultValue="updates" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6 lg:w-auto lg:inline-grid">
+          <TabsList className="grid w-full grid-cols-7 lg:w-auto lg:inline-grid">
             <TabsTrigger value="updates" className="gap-2">
               <TrendingUp className="w-4 h-4 hidden sm:block" />
               Updates
@@ -272,6 +274,10 @@ const SmartClientPortal = () => {
             <TabsTrigger value="plan" className="gap-2">
               <LayoutDashboard className="w-4 h-4 hidden sm:block" />
               Plan
+            </TabsTrigger>
+            <TabsTrigger value="settings" className="gap-2">
+              <Settings className="w-4 h-4 hidden sm:block" />
+              Settings
             </TabsTrigger>
           </TabsList>
 
@@ -734,6 +740,13 @@ const SmartClientPortal = () => {
                   </div>
                 </CardContent>
               </Card>
+            </div>
+          </TabsContent>
+
+          {/* Settings Tab */}
+          <TabsContent value="settings" className="space-y-6">
+            <div className="max-w-2xl">
+              <ChangePasswordForm />
             </div>
           </TabsContent>
         </Tabs>
