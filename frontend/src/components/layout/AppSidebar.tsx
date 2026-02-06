@@ -22,11 +22,10 @@ const navigation = [
   { name: 'Opportunities', href: '/opportunities', icon: TrendingUp },
   { name: 'Reports', href: '/reports', icon: FileText },
   { name: 'Referrals', href: '/referrals', icon: UserPlus },
-];
-
-const bottomNavigation = [
   { name: 'Settings', href: '/settings', icon: Settings },
 ];
+
+const bottomNavigation: typeof navigation = [];
 
 export function AppSidebar() {
   const location = useLocation();
