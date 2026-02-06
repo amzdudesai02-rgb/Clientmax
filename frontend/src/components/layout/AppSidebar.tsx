@@ -84,31 +84,33 @@ export function AppSidebar() {
         </div>
       </div>
 
-      {/* Main Navigation */}
+      {/* Main Navigation - Settings only for admin (Junaid) */}
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-        {navigation.map((item) => {
-          const isActive = location.pathname === item.href;
-          return (
-            <Link
-              key={item.name}
-              to={item.href}
-              className={cn(
-                'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200',
-                isActive 
-                  ? 'bg-sidebar-primary text-sidebar-primary-foreground shadow-glow-primary' 
-                  : 'text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent'
-              )}
-            >
-              <item.icon className="w-5 h-5" />
-              <span>{item.name}</span>
-              {item.name === 'Alerts' && (
-                <span className="ml-auto flex items-center justify-center w-5 h-5 text-xs font-semibold rounded-full bg-destructive text-destructive-foreground">
-                  11
-                </span>
-              )}
-            </Link>
-          );
-        })}
+        {navigation
+          .filter((item) => (item.name === 'Settings' ? canAccessSettings : true))
+          .map((item) => {
+            const isActive = location.pathname === item.href;
+            return (
+              <Link
+                key={item.name}
+                to={item.href}
+                className={cn(
+                  'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200',
+                  isActive 
+                    ? 'bg-sidebar-primary text-sidebar-primary-foreground shadow-glow-primary' 
+                    : 'text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent'
+                )}
+              >
+                <item.icon className="w-5 h-5" />
+                <span>{item.name}</span>
+                {item.name === 'Alerts' && (
+                  <span className="ml-auto flex items-center justify-center w-5 h-5 text-xs font-semibold rounded-full bg-destructive text-destructive-foreground">
+                    11
+                  </span>
+                )}
+              </Link>
+            );
+          })}
       </nav>
 
       {/* Bottom Navigation */}
