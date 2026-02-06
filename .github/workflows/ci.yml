@@ -110,5 +110,4 @@ jobs:
             **/.git*
             **/.git*/**
             **/node_modules/**
-        if: ${{ secrets.HOSTINGER_FTP_SERVER != '' && secrets.HOSTINGER_FTP_USERNAME != '' && secrets.HOSTINGER_FTP_PASSWORD != '' }}
 
