@@ -7,8 +7,7 @@ import {
   UserPlus,
   Settings,
   LogOut,
-  LayoutGrid,
-  Clock
+  LayoutGrid
 } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -17,7 +16,6 @@ import { useClientAuth } from '@/hooks/useClientAuth';
 
 const navigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
-  { name: "Today's Work", href: '/today-work', icon: Clock },
   { name: 'Portals', href: '/portals', icon: LayoutGrid },
   { name: 'Alerts', href: '/alerts', icon: Bell },
   { name: 'Activity', href: '/activity', icon: Activity },
