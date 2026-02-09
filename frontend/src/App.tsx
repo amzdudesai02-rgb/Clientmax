@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -5,35 +6,52 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { RootRedirect } from "@/components/RootRedirect";
+import { Loader2 } from "lucide-react";
+
+// Critical pages - load immediately (frequently used)
 import Dashboard from "./pages/Dashboard";
 import Clients from "./pages/Clients";
-import ClientDetail from "./pages/ClientDetail";
-import Alerts from "./pages/Alerts";
-import Activity from "./pages/Activity";
-import Opportunities from "./pages/Opportunities";
-import Reports from "./pages/Reports";
-import Referrals from "./pages/Referrals";
-import Settings from "./pages/Settings";
-import TeamUtilizationForm from "./pages/TeamUtilizationForm";
-import ClientFeedback from "./pages/ClientFeedback";
-import Hiring from "./pages/Hiring";
-import FeedbackAnalytics from "./pages/FeedbackAnalytics";
-import ClientPortal from "./pages/ClientPortal";
-import ClientOnboarding from "./pages/ClientOnboarding";
-import EmployeePortal from "./pages/EmployeePortal";
-import SmartClientPortal from "./pages/SmartClientPortal";
-import WholesalerEmployeePortal from "./pages/WholesalerEmployeePortal";
-import Portals from "./pages/Portals";
-import EmployeeAuth from "./pages/EmployeeAuth";
-import EmployeeDashboard from "./pages/EmployeeDashboard";
-import ClientAuth from "./pages/ClientAuth";
 import Login from "./pages/Login";
-import ChangePassword from "./pages/ChangePassword";
+import ClientDetail from "./pages/ClientDetail";
 import Profile from "./pages/Profile";
 import EmployeeProfile from "./pages/EmployeeProfile";
 import ClientProfile from "./pages/ClientProfile";
-import TodayWork from "./pages/TodayWork";
-import NotFound from "./pages/NotFound";
+
+// Lazy load less frequently used pages for code splitting
+const Alerts = lazy(() => import("./pages/Alerts"));
+const Activity = lazy(() => import("./pages/Activity"));
+const Opportunities = lazy(() => import("./pages/Opportunities"));
+const Reports = lazy(() => import("./pages/Reports"));
+const Referrals = lazy(() => import("./pages/Referrals"));
+const Settings = lazy(() => import("./pages/Settings"));
+const TeamUtilizationForm = lazy(() => import("./pages/TeamUtilizationForm"));
+const ClientFeedback = lazy(() => import("./pages/ClientFeedback"));
+const Hiring = lazy(() => import("./pages/Hiring"));
+const FeedbackAnalytics = lazy(() => import("./pages/FeedbackAnalytics"));
+const ClientPortal = lazy(() => import("./pages/ClientPortal"));
+const ClientOnboarding = lazy(() => import("./pages/ClientOnboarding"));
+const EmployeePortal = lazy(() => import("./pages/EmployeePortal"));
+const SmartClientPortal = lazy(() => import("./pages/SmartClientPortal"));
+const WholesalerEmployeePortal = lazy(() => import("./pages/WholesalerEmployeePortal"));
+const Portals = lazy(() => import("./pages/Portals"));
+const EmployeeAuth = lazy(() => import("./pages/EmployeeAuth"));
+const EmployeeDashboard = lazy(() => import("./pages/EmployeeDashboard"));
+const ClientAuth = lazy(() => import("./pages/ClientAuth"));
+const ChangePassword = lazy(() => import("./pages/ChangePassword"));
+const TodayWork = lazy(() => import("./pages/TodayWork"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+
+// Loading fallback component
+const PageLoader = () => (
+  <div className="min-h-screen flex items-center justify-center bg-background">
+    <Loader2 className="w-8 h-8 animate-spin text-primary" />
+  </div>
+);
+
+// Wrapper component for lazy routes with Suspense
+const LazyRoute = ({ children }: { children: React.ReactNode }) => (
+  <Suspense fallback={<PageLoader />}>{children}</Suspense>
+);
 
 const queryClient = new QueryClient();
 
@@ -74,7 +92,7 @@ const App = () => (
             path="/portals"
             element={
               <ProtectedRoute userType="employee">
-                <Portals />
+                <LazyRoute><Portals /></LazyRoute>
               </ProtectedRoute>
             }
           />
@@ -82,7 +100,7 @@ const App = () => (
             path="/alerts"
             element={
               <ProtectedRoute userType="employee">
-                <Alerts />
+                <LazyRoute><Alerts /></LazyRoute>
               </ProtectedRoute>
             }
           />
@@ -90,7 +108,7 @@ const App = () => (
             path="/activity"
             element={
               <ProtectedRoute userType="employee">
-                <Activity />
+                <LazyRoute><Activity /></LazyRoute>
               </ProtectedRoute>
             }
           />
@@ -98,7 +116,7 @@ const App = () => (
             path="/opportunities"
             element={
               <ProtectedRoute userType="employee">
-                <Opportunities />
+                <LazyRoute><Opportunities /></LazyRoute>
               </ProtectedRoute>
             }
           />
@@ -106,7 +124,7 @@ const App = () => (
             path="/reports"
             element={
               <ProtectedRoute userType="employee">
-                <Reports />
+                <LazyRoute><Reports /></LazyRoute>
               </ProtectedRoute>
             }
           />
@@ -114,7 +132,7 @@ const App = () => (
             path="/referrals"
             element={
               <ProtectedRoute userType="employee">
-                <Referrals />
+                <LazyRoute><Referrals /></LazyRoute>
               </ProtectedRoute>
             }
           />
@@ -122,7 +140,7 @@ const App = () => (
             path="/settings"
             element={
               <ProtectedRoute userType="employee">
-                <Settings />
+                <LazyRoute><Settings /></LazyRoute>
               </ProtectedRoute>
             }
           />
@@ -154,7 +172,7 @@ const App = () => (
             path="/change-password"
             element={
               <ProtectedRoute userType="any">
-                <ChangePassword />
+                <LazyRoute><ChangePassword /></LazyRoute>
               </ProtectedRoute>
             }
           />
@@ -162,7 +180,7 @@ const App = () => (
             path="/today-work"
             element={
               <ProtectedRoute userType="employee">
-                <TodayWork />
+                <LazyRoute><TodayWork /></LazyRoute>
               </ProtectedRoute>
             }
           />
@@ -170,7 +188,7 @@ const App = () => (
             path="/team-form"
             element={
               <ProtectedRoute userType="employee">
-                <TeamUtilizationForm />
+                <LazyRoute><TeamUtilizationForm /></LazyRoute>
               </ProtectedRoute>
             }
           />
@@ -178,7 +196,7 @@ const App = () => (
             path="/client-feedback"
             element={
               <ProtectedRoute userType="employee">
-                <ClientFeedback />
+                <LazyRoute><ClientFeedback /></LazyRoute>
               </ProtectedRoute>
             }
           />
@@ -186,7 +204,7 @@ const App = () => (
             path="/hiring"
             element={
               <ProtectedRoute userType="employee">
-                <Hiring />
+                <LazyRoute><Hiring /></LazyRoute>
               </ProtectedRoute>
             }
           />
@@ -194,7 +212,7 @@ const App = () => (
             path="/feedback-analytics"
             element={
               <ProtectedRoute userType="employee">
-                <FeedbackAnalytics />
+                <LazyRoute><FeedbackAnalytics /></LazyRoute>
               </ProtectedRoute>
             }
           />
@@ -202,7 +220,7 @@ const App = () => (
             path="/client-portal"
             element={
               <ProtectedRoute userType="employee">
-                <ClientPortal />
+                <LazyRoute><ClientPortal /></LazyRoute>
               </ProtectedRoute>
             }
           />
@@ -210,7 +228,7 @@ const App = () => (
             path="/client-onboarding"
             element={
               <ProtectedRoute userType="employee">
-                <ClientOnboarding />
+                <LazyRoute><ClientOnboarding /></LazyRoute>
               </ProtectedRoute>
             }
           />
@@ -218,7 +236,7 @@ const App = () => (
             path="/employee-portal"
             element={
               <ProtectedRoute userType="employee">
-                <EmployeePortal />
+                <LazyRoute><EmployeePortal /></LazyRoute>
               </ProtectedRoute>
             }
           />
@@ -226,7 +244,7 @@ const App = () => (
             path="/smart-portal"
             element={
               <ProtectedRoute userType="client">
-                <SmartClientPortal />
+                <LazyRoute><SmartClientPortal /></LazyRoute>
               </ProtectedRoute>
             }
           />
@@ -234,7 +252,7 @@ const App = () => (
             path="/wholesaler-portal"
             element={
               <ProtectedRoute userType="employee">
-                <WholesalerEmployeePortal />
+                <LazyRoute><WholesalerEmployeePortal /></LazyRoute>
               </ProtectedRoute>
             }
           />
@@ -242,7 +260,7 @@ const App = () => (
             path="/employee-auth"
             element={
               <ProtectedRoute userType="employee">
-                <EmployeeAuth />
+                <LazyRoute><EmployeeAuth /></LazyRoute>
               </ProtectedRoute>
             }
           />
@@ -250,12 +268,12 @@ const App = () => (
             path="/employee-dashboard"
             element={
               <ProtectedRoute userType="employee">
-                <EmployeeDashboard />
+                <LazyRoute><EmployeeDashboard /></LazyRoute>
               </ProtectedRoute>
             }
           />
-          <Route path="/client-auth" element={<ClientAuth />} />
-          <Route path="*" element={<NotFound />} />
+          <Route path="/client-auth" element={<LazyRoute><ClientAuth /></LazyRoute>} />
+          <Route path="*" element={<LazyRoute><NotFound /></LazyRoute>} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>

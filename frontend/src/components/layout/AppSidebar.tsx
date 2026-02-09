@@ -1,3 +1,4 @@
+import { useMemo, useCallback } from 'react';
 import { 
   LayoutDashboard, 
   Bell, 
@@ -27,42 +28,59 @@ const navigation = [
 
 const bottomNavigation: typeof navigation = [];
 
+// Memoize getInitials function outside component
+const getInitials = (name: string) => {
+  const parts = name.trim().split(/\s+/);
+  if (parts.length >= 2) {
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  }
+  return name.substring(0, 2).toUpperCase();
+};
+
 export function AppSidebar() {
   const location = useLocation();
   const navigate = useNavigate();
   const { signOut: employeeSignOut, employee, user: employeeUser } = useAuth();
   const { signOut: clientSignOut, client } = useClientAuth();
 
-  const handleLogout = async () => {
+  // Memoize logout handler
+  const handleLogout = useCallback(async () => {
     await employeeSignOut();
     await clientSignOut();
     navigate('/login', { replace: true });
-  };
+  }, [employeeSignOut, clientSignOut, navigate]);
 
-  // Get user info for display
-  const displayName = employee?.name || client?.contact_name || employeeUser?.email?.split('@')[0] || 'User';
-  const displayRole = employee?.role === 'CEO' 
-    ? 'CEO' 
-    : employee?.role 
-    ? 'Employee' 
-    : client 
-    ? 'Client' 
-    : 'User';
+  // Memoize user info calculations
+  const displayName = useMemo(
+    () => employee?.name || client?.contact_name || employeeUser?.email?.split('@')[0] || 'User',
+    [employee?.name, client?.contact_name, employeeUser?.email]
+  );
+
+  const displayRole = useMemo(() => {
+    if (employee?.role === 'CEO') return 'CEO';
+    if (employee?.role) return 'Employee';
+    if (client) return 'Client';
+    return 'User';
+  }, [employee?.role, client]);
   
-  // Generate initials from name
-  const getInitials = (name: string) => {
-    const parts = name.trim().split(/\s+/);
-    if (parts.length >= 2) {
-      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-    }
-    return name.substring(0, 2).toUpperCase();
-  };
+  const initials = useMemo(() => getInitials(displayName), [displayName]);
   
-  const initials = getInitials(displayName);
+  // Memoize settings access check
+  const userEmail = useMemo(
+    () => employeeUser?.email || employee?.email || '',
+    [employeeUser?.email, employee?.email]
+  );
   
-  // Settings is only visible to junaid@amzdudes.com
-  const userEmail = employeeUser?.email || employee?.email || '';
-  const canAccessSettings = employee?.role === 'CEO' && userEmail === 'junaid@amzdudes.com';
+  const canAccessSettings = useMemo(
+    () => employee?.role === 'CEO' && userEmail === 'junaid@amzdudes.com',
+    [employee?.role, userEmail]
+  );
+
+  // Memoize filtered navigation
+  const filteredNavigation = useMemo(
+    () => navigation.filter((item) => (item.name === 'Settings' ? canAccessSettings : true)),
+    [canAccessSettings]
+  );
 
   return (
     <div className="flex flex-col h-full w-64 bg-sidebar gradient-sidebar">
@@ -86,9 +104,7 @@ export function AppSidebar() {
 
       {/* Main Navigation - Settings only for admin (Junaid) */}
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-        {navigation
-          .filter((item) => (item.name === 'Settings' ? canAccessSettings : true))
-          .map((item) => {
+        {filteredNavigation.map((item) => {
             const isActive = location.pathname === item.href;
             return (
               <Link

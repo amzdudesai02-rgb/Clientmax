@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 export interface DBClient {
@@ -42,7 +42,7 @@ export function useClients() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchClients = async () => {
+  const fetchClients = useCallback(async () => {
     try {
       setLoading(true);
       const { data, error: fetchError } = await supabase
@@ -57,9 +57,9 @@ export function useClients() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const addClient = async (client: Omit<DBClient, 'id' | 'created_at' | 'updated_at'>) => {
+  const addClient = useCallback(async (client: Omit<DBClient, 'id' | 'created_at' | 'updated_at'>) => {
     const { data, error: insertError } = await supabase
       .from('clients')
       .insert([client])
@@ -69,9 +69,9 @@ export function useClients() {
     if (insertError) throw insertError;
     setClients(prev => [data as DBClient, ...prev]);
     return data as DBClient;
-  };
+  }, []);
 
-  const updateClient = async (id: string, updates: Partial<DBClient>) => {
+  const updateClient = useCallback(async (id: string, updates: Partial<DBClient>) => {
     const { data, error: updateError } = await supabase
       .from('clients')
       .update(updates)
@@ -82,9 +82,9 @@ export function useClients() {
     if (updateError) throw updateError;
     setClients(prev => prev.map(c => c.id === id ? data as DBClient : c));
     return data as DBClient;
-  };
+  }, []);
 
-  const deleteClient = async (id: string) => {
+  const deleteClient = useCallback(async (id: string) => {
     const { error: deleteError } = await supabase
       .from('clients')
       .delete()
@@ -92,11 +92,11 @@ export function useClients() {
 
     if (deleteError) throw deleteError;
     setClients(prev => prev.filter(c => c.id !== id));
-  };
+  }, []);
 
   useEffect(() => {
     fetchClients();
-  }, []);
+  }, [fetchClients]);
 
   return {
     clients,
