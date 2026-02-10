@@ -39,7 +39,10 @@ const formatCurrency = (value: number) => {
 const Dashboard = () => {
   const { metrics, hiringMetrics } = useDashboardMetrics();
   const { employee, user: authUser, loading: authLoading } = useAuth();
-  const [visibleTeamLeads, setVisibleTeamLeads] = useState<TeamLead[]>(mockTeamLeads);
+  // Teams visible in Team Utilization card:
+  // - Admin (Junaid / CEO): all teams
+  // - Employee: only their own team
+  const [visibleTeamLeads, setVisibleTeamLeads] = useState<TeamLead[]>([]);
   
   // Memoize welcome name calculation
   const welcomeName = useMemo(() => {
@@ -61,9 +64,9 @@ const Dashboard = () => {
   // Determine which teams to show based on role
   useEffect(() => {
     const resolveTeamLeads = async () => {
-      // No employee record yet – fallback to all teams
+      // No employee record yet – nothing to show
       if (!employee) {
-        setVisibleTeamLeads(mockTeamLeads);
+        setVisibleTeamLeads([]);
         return;
       }
 
@@ -192,7 +195,7 @@ const Dashboard = () => {
         <QuickDataUpload />
 
         {/* Team Utilization */}
-        <TeamUtilizationCard teamLeads={visibleTeamLeads.length > 0 ? visibleTeamLeads : mockTeamLeads} />
+        <TeamUtilizationCard teamLeads={visibleTeamLeads} />
 
         {/* Activity Feed */}
         <ActivityFeed activities={mockActivities} />

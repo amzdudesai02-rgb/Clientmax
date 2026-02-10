@@ -10,9 +10,11 @@ interface TeamUtilizationCardProps {
 }
 
 export function TeamUtilizationCard({ teamLeads }: TeamUtilizationCardProps) {
-  const avgUtilization = Math.round(
-    teamLeads.reduce((sum, lead) => sum + lead.utilization, 0) / teamLeads.length
-  );
+  const avgUtilization = teamLeads.length
+    ? Math.round(
+        teamLeads.reduce((sum, lead) => sum + lead.utilization, 0) / teamLeads.length
+      )
+    : 0;
 
   const getUtilizationColor = (utilization: number) => {
     if (utilization >= 85) return 'bg-success';
@@ -46,36 +48,44 @@ export function TeamUtilizationCard({ teamLeads }: TeamUtilizationCardProps) {
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        {teamLeads.map((lead) => (
-          <div key={lead.id} className="space-y-2">
-            <div className="flex items-center justify-between">
-              <div className="flex-1">
-                <div className="flex items-center gap-2">
-                  <span className="font-medium text-sm text-foreground">{lead.name}</span>
-                  <span className="text-xs text-muted-foreground">• {lead.department}</span>
+        {teamLeads.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            No team utilization data available for your team yet.
+          </p>
+        ) : (
+          <>
+            {teamLeads.map((lead) => (
+              <div key={lead.id} className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium text-sm text-foreground">{lead.name}</span>
+                      <span className="text-xs text-muted-foreground">• {lead.department}</span>
+                    </div>
+                    <span className="text-xs text-muted-foreground">
+                      {lead.teamSize} team members
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className={cn('text-sm font-semibold', getUtilizationTextColor(lead.utilization))}>
+                      {lead.utilization}%
+                    </span>
+                    <Button variant="ghost" size="icon" className="h-6 w-6">
+                      <Mail className="w-3 h-3" />
+                    </Button>
+                  </div>
                 </div>
-                <span className="text-xs text-muted-foreground">
-                  {lead.teamSize} team members
-                </span>
+                <Progress 
+                  value={lead.utilization} 
+                  className="h-2"
+                />
               </div>
-              <div className="flex items-center gap-2">
-                <span className={cn('text-sm font-semibold', getUtilizationTextColor(lead.utilization))}>
-                  {lead.utilization}%
-                </span>
-                <Button variant="ghost" size="icon" className="h-6 w-6">
-                  <Mail className="w-3 h-3" />
-                </Button>
-              </div>
-            </div>
-            <Progress 
-              value={lead.utilization} 
-              className="h-2"
-            />
-          </div>
-        ))}
-        <p className="text-xs text-muted-foreground pt-2 border-t">
-          Last updated based on team lead submissions
-        </p>
+            ))}
+            <p className="text-xs text-muted-foreground pt-2 border-t">
+              Last updated based on team lead submissions
+            </p>
+          </>
+        )}
       </CardContent>
     </Card>
   );
