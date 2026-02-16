@@ -1,7 +1,7 @@
 import { AppLayout } from '@/components/layout/AppLayout';
 import { OpportunityCards } from '@/components/dashboard/OpportunityCards';
-import { mockOpportunities } from '@/data/mockData';
 import { Button } from '@/components/ui/button';
+import type { Opportunity } from '@/types';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
@@ -14,12 +14,14 @@ import {
   XCircle
 } from 'lucide-react';
 
-const Opportunities = () => {
-  const quickWins = mockOpportunities.filter(o => o.type === 'quick_win');
-  const mediumPlays = mockOpportunities.filter(o => o.type === 'medium_play');
-  const bigOpportunities = mockOpportunities.filter(o => o.type === 'big_opportunity');
+const opportunities: Opportunity[] = [];
 
-  const totalPotential = mockOpportunities.reduce((sum, o) => sum + o.potentialRevenue, 0);
+const Opportunities = () => {
+  const quickWins = opportunities.filter(o => o.type === 'quick_win');
+  const mediumPlays = opportunities.filter(o => o.type === 'medium_play');
+  const bigOpportunities = opportunities.filter(o => o.type === 'big_opportunity');
+
+  const totalPotential = opportunities.reduce((sum, o) => sum + o.potentialRevenue, 0);
 
   const formatCurrency = (value: number) => {
     if (value >= 1000) {
@@ -65,19 +67,11 @@ const Opportunities = () => {
         </div>
       </div>
 
-      {/* Conversion Stats */}
+      {/* Conversion Stats - real data only */}
       <div className="flex items-center gap-8 mb-6 p-4 rounded-xl bg-card border border-border">
         <div className="flex items-center gap-2">
           <TrendingUp className="w-5 h-5 text-primary" />
-          <span className="text-sm text-muted-foreground">42 opportunities identified this month</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <CheckCircle2 className="w-5 h-5 text-success" />
-          <span className="text-sm text-muted-foreground">18 accepted (43% conversion)</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <XCircle className="w-5 h-5 text-muted-foreground" />
-          <span className="text-sm text-muted-foreground">8 declined</span>
+          <span className="text-sm text-muted-foreground">{opportunities.length} opportunities identified</span>
         </div>
       </div>
 
@@ -102,7 +96,7 @@ const Opportunities = () => {
         </TabsList>
 
         <TabsContent value="all">
-          <OpportunityCards opportunities={mockOpportunities} title="All Opportunities" />
+          <OpportunityCards opportunities={opportunities} title="All Opportunities" />
         </TabsContent>
         <TabsContent value="quick_win">
           <OpportunityCards opportunities={quickWins} title="Quick Wins" />

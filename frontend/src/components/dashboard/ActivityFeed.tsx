@@ -60,6 +60,9 @@ export function ActivityFeed({ activities, title = 'Recent Activity' }: Activity
 
       {/* Activity Timeline */}
       <div className="px-6 py-4">
+        {activities.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No recent activity.</p>
+        ) : (
         <div className="relative">
           {/* Timeline Line */}
           <div className="absolute left-5 top-0 bottom-0 w-px bg-border" />
@@ -106,6 +109,7 @@ export function ActivityFeed({ activities, title = 'Recent Activity' }: Activity
             })}
           </div>
         </div>
+        )}
       </div>
     </div>
   );

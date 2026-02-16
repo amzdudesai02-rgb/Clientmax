@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -18,9 +18,9 @@ import {
   CheckCircle2,
   Clock,
   FileText,
-  User
+  User,
+  Loader2
 } from 'lucide-react';
-import { mockClients, mockClientFeedback, generatePerformanceData } from '@/data/mockData';
 import {
   ChartContainer,
   ChartTooltip,
@@ -28,51 +28,70 @@ import {
 } from '@/components/ui/chart';
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, AreaChart, Area } from 'recharts';
 import { format, parseISO } from 'date-fns';
+import { supabase } from '@/integrations/supabase/client';
+
+type ClientInfo = { id: string; name: string; companyName: string; assignedManager: string };
 
 const ClientPortal = () => {
   const [searchParams] = useSearchParams();
-  const clientId = searchParams.get('clientId') || '1';
-  
-  const client = mockClients.find(c => c.id === clientId);
-  const clientFeedback = mockClientFeedback.filter(f => f.clientId === clientId);
-  const performanceData = generatePerformanceData(clientId);
+  const clientId = searchParams.get('clientId') || '';
+  const [client, setClient] = useState<ClientInfo | null>(null);
+  const [loading, setLoading] = useState(!!clientId);
+  const clientFeedback: Array<{ id: string; clientId: string; score: number; submittedAt: string; feedback?: string }> = [];
+  const performanceData: Array<{ date: string; revenue?: number; adSpend?: number; sessions?: number; conversions?: number; orders?: number }> = [];
   
   const [message, setMessage] = useState('');
-  const [messages, setMessages] = useState([
-    {
-      id: '1',
-      senderId: 'manager',
-      senderName: client?.assignedManager || 'Account Manager',
-      senderType: 'manager' as const,
-      message: `Hi ${client?.name || 'there'}! Welcome to your client portal. Feel free to reach out if you have any questions about your account.`,
-      timestamp: '2026-01-15T10:00:00Z',
-      read: true
-    },
-    {
-      id: '2',
-      senderId: clientId,
-      senderName: client?.name || 'Client',
-      senderType: 'client' as const,
-      message: 'Thanks! I was wondering about the performance of my campaigns this week.',
-      timestamp: '2026-01-15T14:30:00Z',
-      read: true
-    },
-    {
-      id: '3',
-      senderId: 'manager',
-      senderName: client?.assignedManager || 'Account Manager',
-      senderType: 'manager' as const,
-      message: 'Great question! Your campaigns are performing well. ROAS is up 15% compared to last week. I\'ve made some optimizations to your keyword bids that should help even more.',
-      timestamp: '2026-01-15T15:00:00Z',
-      read: true
-    }
-  ]);
+  const [messages, setMessages] = useState<Array<{ id: string; senderId: string; senderName: string; senderType: 'manager' | 'client'; message: string; timestamp: string; read: boolean }>>([]);
 
   const [feedbackScore, setFeedbackScore] = useState<number | null>(null);
   const [feedbackText, setFeedbackText] = useState('');
   const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
 
-  if (!client) {
+  useEffect(() => {
+    if (!clientId) {
+      setLoading(false);
+      setClient(null);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('clients')
+        .select('id, company_name, contact_name, email')
+        .eq('id', clientId)
+        .maybeSingle();
+      if (!cancelled) {
+        setLoading(false);
+        if (error || !data) {
+          setClient(null);
+          return;
+        }
+        setClient({
+          id: data.id,
+          name: data.contact_name ?? '',
+          companyName: data.company_name ?? '',
+          assignedManager: ''
+        });
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [clientId]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <Card className="w-full max-w-md">
+          <CardContent className="pt-6 flex items-center justify-center gap-2 text-muted-foreground">
+            <Loader2 className="w-5 h-5 animate-spin" />
+            <span>Loading...</span>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (!clientId || !client) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <Card className="w-full max-w-md">
@@ -373,7 +392,7 @@ const ClientPortal = () => {
                   </CardHeader>
                   <CardContent>
                     <p className="text-3xl font-bold">
-                      {performanceData.reduce((sum, d) => sum + d.orders, 0).toLocaleString()}
+                      {performanceData.reduce((sum, d) => sum + (d.orders ?? 0), 0).toLocaleString()}
                     </p>
                   </CardContent>
                 </Card>
@@ -383,7 +402,7 @@ const ClientPortal = () => {
                   </CardHeader>
                   <CardContent>
                     <p className="text-3xl font-bold">
-                      {performanceData.reduce((sum, d) => sum + d.sessions, 0).toLocaleString()}
+                      {performanceData.reduce((sum, d) => sum + (d.sessions ?? 0), 0).toLocaleString()}
                     </p>
                   </CardContent>
                 </Card>
@@ -393,8 +412,10 @@ const ClientPortal = () => {
                   </CardHeader>
                   <CardContent>
                     <p className="text-3xl font-bold">
-                      {((performanceData.reduce((sum, d) => sum + d.conversions, 0) / 
-                        performanceData.reduce((sum, d) => sum + d.sessions, 0)) * 100).toFixed(2)}%
+                      {performanceData.length
+                        ? ((performanceData.reduce((sum, d) => sum + (d.conversions ?? 0), 0) /
+                            performanceData.reduce((sum, d) => sum + (d.sessions ?? 0), 0) || 0) * 100).toFixed(2)
+                        : '0'}%
                     </p>
                   </CardContent>
                 </Card>
@@ -408,13 +429,16 @@ const ClientPortal = () => {
               <CardHeader>
                 <CardTitle>Messages with Your Account Manager</CardTitle>
                 <CardDescription>
-                  Communicate directly with {client.assignedManager}
+                  Communicate directly with your account manager
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <ScrollArea className="h-[400px] pr-4 mb-4">
                   <div className="space-y-4">
-                    {messages.map((msg) => (
+                    {messages.length === 0 ? (
+                      <p className="text-muted-foreground text-center py-8">No messages yet. Send a message to start the conversation.</p>
+                    ) : (
+                    messages.map((msg) => (
                       <div 
                         key={msg.id}
                         className={`flex ${msg.senderType === 'client' ? 'justify-end' : 'justify-start'}`}
@@ -435,7 +459,8 @@ const ClientPortal = () => {
                           </p>
                         </div>
                       </div>
-                    ))}
+                    ))
+                    )}
                   </div>
                 </ScrollArea>
                 <div className="flex gap-2">

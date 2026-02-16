@@ -7,12 +7,8 @@ import { TeamUtilizationCard } from '@/components/dashboard/TeamUtilizationCard'
 import { QuickDataUpload } from '@/components/dashboard/QuickDataUpload';
 import { useDashboardMetrics } from '@/hooks/useDashboardMetrics';
 import { useAuth } from '@/hooks/useAuth';
+import { useTeamLeads } from '@/hooks/useClients';
 import { supabase } from '@/integrations/supabase/client';
-import { 
-  mockActivities, 
-  mockOpportunities,
-  mockTeamLeads
-} from '@/data/mockData';
 import type { TeamLead } from '@/types';
 import { 
   Users, 
@@ -39,11 +35,25 @@ const formatCurrency = (value: number) => {
 const Dashboard = () => {
   const { metrics, hiringMetrics } = useDashboardMetrics();
   const { employee, user: authUser, loading: authLoading } = useAuth();
-  // Teams visible in Team Utilization card:
-  // - Admin (Junaid / CEO): all teams
-  // - Employee: only their own team
+  // Teams: Admin sees all (from DB), Employee sees only their team (from DB)
+  const { teamLeads: dbTeamLeads } = useTeamLeads();
   const [visibleTeamLeads, setVisibleTeamLeads] = useState<TeamLead[]>([]);
-  
+
+  // Map DB team_leads to TeamLead type (utilization/teamSize from DB or 0)
+  const dbTeamLeadsAsTeamLead: TeamLead[] = useMemo(
+    () =>
+      dbTeamLeads.map((tl) => ({
+        id: tl.id,
+        name: tl.name,
+        email: tl.email,
+        department: tl.department,
+        teamSize: 0,
+        utilization: 0,
+        lastUpdated: '',
+      })),
+    [dbTeamLeads]
+  );
+
   // Memoize welcome name calculation
   const welcomeName = useMemo(() => {
     if (authLoading) return '';
@@ -61,97 +71,76 @@ const Dashboard = () => {
   const formattedQuarterlyRevenue = useMemo(() => formatCurrency(metrics.quarterlyRevenue), [metrics.quarterlyRevenue]);
   const formattedOpportunitiesPotential = useMemo(() => formatCurrency(metrics.opportunitiesPotential), [metrics.opportunitiesPotential]);
 
-  // Determine which teams to show based on role
+  // Admin = CEO with junaid@amzdudes.com (sees all metrics + all teams). Employee = restricted metrics + own team only.
+  const isAdmin = useMemo(() => {
+    if (authLoading || !employee) return false;
+    const userEmail = authUser?.email || employee.email || '';
+    return employee.role === 'CEO' && userEmail === 'junaid@amzdudes.com';
+  }, [authLoading, employee, authUser?.email]);
+
+  // Determine which teams to show: Admin = all from DB, Employee = only their team
   useEffect(() => {
-    const resolveTeamLeads = async () => {
-      // No employee record yet – nothing to show
-      if (!employee) {
-        setVisibleTeamLeads([]);
-        return;
-      }
-
-      const userEmail = authUser?.email || employee.email || '';
-      const isCEO = employee.role === 'CEO' && userEmail === 'junaid@amzdudes.com';
-
-      // Admin / CEO: show all teams
-      if (isCEO) {
-        setVisibleTeamLeads(mockTeamLeads);
-        return;
-      }
-
-      // Regular employee: show only their own team (via team_lead_id)
-      if (!employee.team_lead_id) {
-        setVisibleTeamLeads([]);
-        return;
-      }
-
-      try {
-        const { data, error } = await supabase
-          .from('team_leads')
-          .select('name, email, department')
-          .eq('id', employee.team_lead_id)
-          .maybeSingle();
-
-        if (error || !data) {
-          console.error('Error fetching team lead for employee:', error);
-          setVisibleTeamLeads([]);
-          return;
-        }
-
-        // Try to match the real team lead record to our mockTeamLeads by email/name/department
-        const match = mockTeamLeads.find(
-          (lead) =>
-            lead.email === data.email ||
-            lead.name === data.name ||
-            lead.department === data.department
-        );
-
-        setVisibleTeamLeads(match ? [match] : []);
-      } catch (err) {
-        console.error('Error resolving employee team lead:', err);
-        setVisibleTeamLeads([]);
-      }
-    };
-
-    if (!authLoading) {
-      resolveTeamLeads();
+    if (authLoading || !employee) {
+      setVisibleTeamLeads([]);
+      return;
     }
-  }, [employee, authUser, authLoading]);
+
+    const userEmail = authUser?.email || employee.email || '';
+    const admin = employee.role === 'CEO' && userEmail === 'junaid@amzdudes.com';
+
+    if (admin) {
+      setVisibleTeamLeads(dbTeamLeadsAsTeamLead);
+      return;
+    }
+
+    // Employee: only their team (by team_lead_id)
+    if (!employee.team_lead_id) {
+      setVisibleTeamLeads([]);
+      return;
+    }
+
+    const myTeam = dbTeamLeadsAsTeamLead.find((tl) => tl.id === employee.team_lead_id);
+    setVisibleTeamLeads(myTeam ? [myTeam] : []);
+  }, [employee, authUser, authLoading, dbTeamLeadsAsTeamLead]);
 
   return (
     <AppLayout 
       title="Dashboard" 
       subtitle={welcomeName ? `Welcome back, ${welcomeName}. Here's what's happening with your agency.` : "Welcome back. Here's what's happening with your agency."}
     >
-      {/* Primary Metrics Grid */}
+      {/* Primary Metrics Grid — Admin sees all 4; Employee sees only Attendance Score */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <MetricCard
-          title="Total Clients"
-          value={metrics.totalClients}
-          change={{ 
-            value: `${netClientChange >= 0 ? '+' : ''}${netClientChange} this month`, 
-            positive: netClientChange >= 0 
-          }}
-          icon={Users}
-          variant="primary"
-        />
-        <MetricCard
-          title="Monthly Recurring Revenue"
-          value={formattedMRR}
-          change={{ 
-            value: `${metrics.mrrChange >= 0 ? '+' : ''}${metrics.mrrChange}% vs last month`, 
-            positive: metrics.mrrChange >= 0 
-          }}
-          icon={DollarSign}
-          variant="success"
-        />
-        <MetricCard
-          title="Avg Client Score"
-          value={`${metrics.avgClientScore}/10`}
-          change={{ value: 'From client feedback', positive: metrics.avgClientScore >= 7 }}
-          icon={Star}
-          variant={metrics.avgClientScore >= 8 ? 'success' : metrics.avgClientScore >= 6 ? 'warning' : 'danger'}
-        />
+        {isAdmin && (
+          <>
+            <MetricCard
+              title="Total Clients"
+              value={metrics.totalClients}
+              change={{ 
+                value: `${netClientChange >= 0 ? '+' : ''}${netClientChange} this month`, 
+                positive: netClientChange >= 0 
+              }}
+              icon={Users}
+              variant="primary"
+            />
+            <MetricCard
+              title="Monthly Recurring Revenue"
+              value={formattedMRR}
+              change={{ 
+                value: `${metrics.mrrChange >= 0 ? '+' : ''}${metrics.mrrChange}% vs last month`, 
+                positive: metrics.mrrChange >= 0 
+              }}
+              icon={DollarSign}
+              variant="success"
+            />
+            <MetricCard
+              title="Avg Client Score"
+              value={`${metrics.avgClientScore}/10`}
+              change={{ value: 'From client feedback', positive: metrics.avgClientScore >= 7 }}
+              icon={Star}
+              variant={metrics.avgClientScore >= 8 ? 'success' : metrics.avgClientScore >= 6 ? 'warning' : 'danger'}
+            />
+          </>
+        )}
         <MetricCard
           title="Attendance Score"
           value={`${metrics.attendanceScore}%`}
@@ -161,14 +150,16 @@ const Dashboard = () => {
         />
       </div>
 
-      {/* Secondary Metrics */}
+      {/* Secondary Metrics — Admin sees Q1 Revenue + 3; Employee sees only 3 */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <MetricCard
-          title={`${metrics.currentQuarter} Revenue`}
-          value={formattedQuarterlyRevenue}
-          icon={TrendingUp}
-          variant="success"
-        />
+        {isAdmin && (
+          <MetricCard
+            title={`${metrics.currentQuarter} Revenue`}
+            value={formattedQuarterlyRevenue}
+            icon={TrendingUp}
+            variant="success"
+          />
+        )}
         <MetricCard
           title="Opportunities Pipeline"
           value={metrics.opportunitiesPipeline}
@@ -197,11 +188,11 @@ const Dashboard = () => {
         {/* Team Utilization */}
         <TeamUtilizationCard teamLeads={visibleTeamLeads} />
 
-        {/* Activity Feed */}
-        <ActivityFeed activities={mockActivities} />
+        {/* Activity Feed - real data only, no demo */}
+        <ActivityFeed activities={[]} />
 
-        {/* Growth Opportunities */}
-        <OpportunityCards opportunities={mockOpportunities} />
+        {/* Growth Opportunities - real data only, no demo */}
+        <OpportunityCards opportunities={[]} />
       </div>
     </AppLayout>
   );

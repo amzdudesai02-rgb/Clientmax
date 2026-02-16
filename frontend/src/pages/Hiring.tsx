@@ -41,13 +41,12 @@ import {
   Users
 } from 'lucide-react';
 import { JobPost, Interview, NewHire } from '@/types';
-import { mockJobPosts, mockInterviews, mockNewHires, mockHiringMetrics } from '@/data/mockData';
 import { cn } from '@/lib/utils';
 
 const Hiring = () => {
-  const [jobPosts, setJobPosts] = useState<JobPost[]>(mockJobPosts);
-  const [interviews, setInterviews] = useState<Interview[]>(mockInterviews);
-  const [newHires, setNewHires] = useState<NewHire[]>(mockNewHires);
+  const [jobPosts, setJobPosts] = useState<JobPost[]>([]);
+  const [interviews, setInterviews] = useState<Interview[]>([]);
+  const [newHires, setNewHires] = useState<NewHire[]>([]);
   
   const [isJobDialogOpen, setIsJobDialogOpen] = useState(false);
   const [isInterviewDialogOpen, setIsInterviewDialogOpen] = useState(false);

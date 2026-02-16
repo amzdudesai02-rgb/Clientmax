@@ -211,7 +211,7 @@ const Portals = () => {
                           Employee
                         </Button>
                       </Link>
-                      <Link to={`/smart-portal?clientId=${client.id}`}>
+                      <Link to={`/clients/${client.id}`}>
                         <Button variant="default" size="sm" className="w-full gap-2">
                           <ExternalLink className="w-4 h-4" />
                           Client

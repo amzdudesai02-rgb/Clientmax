@@ -1,24 +1,45 @@
 import { useState, useEffect, useCallback } from 'react';
 import { DashboardMetrics, HiringMetrics } from '@/types';
-import { mockDashboardMetrics, mockHiringMetrics } from '@/data/mockData';
 import { supabase } from '@/integrations/supabase/client';
 
 const HIRING_STORAGE_KEY = 'hiring_metrics';
 
+const defaultMetrics: DashboardMetrics = {
+  totalClients: 0,
+  clientsAddedThisMonth: 0,
+  clientsLostThisMonth: 0,
+  totalMRR: 0,
+  mrrChange: 0,
+  avgClientScore: 0,
+  attendanceScore: 0,
+  quarterlyRevenue: 0,
+  currentQuarter: `Q${Math.ceil((new Date().getMonth() + 1) / 3)} ${new Date().getFullYear()}`,
+  opportunitiesPipeline: 0,
+  opportunitiesPotential: 0,
+  teamUtilization: 0,
+};
+
+const defaultHiringMetrics: HiringMetrics = {
+  jobPostsActive: 0,
+  interviewsScheduled: 0,
+  interviewsCompleted: 0,
+  newHiresThisMonth: 0,
+};
+
 export function useDashboardMetrics() {
-  const [metrics, setMetrics] = useState<DashboardMetrics>(mockDashboardMetrics);
+  const [metrics, setMetrics] = useState<DashboardMetrics>(defaultMetrics);
   const [isLoading, setIsLoading] = useState(true);
 
   const [hiringMetrics, setHiringMetrics] = useState<HiringMetrics>(() => {
     const stored = localStorage.getItem(HIRING_STORAGE_KEY);
     if (stored) {
       try {
-        return JSON.parse(stored);
+        return { ...defaultHiringMetrics, ...JSON.parse(stored) };
       } catch {
-        return mockHiringMetrics;
+        return defaultHiringMetrics;
       }
     }
-    return mockHiringMetrics;
+    return defaultHiringMetrics;
   });
 
   const fetchMetricsFromDb = useCallback(async () => {

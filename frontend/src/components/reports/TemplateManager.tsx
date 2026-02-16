@@ -20,7 +20,6 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
-import { mockReportTemplates } from '@/data/mockData';
 import type { ReportTemplate, ReportSection } from '@/types';
 import { toast } from '@/hooks/use-toast';
 
@@ -43,7 +42,7 @@ const sectionTypeIcons: Record<string, string> = {
 };
 
 export function TemplateManager() {
-  const [templates, setTemplates] = useState<ReportTemplate[]>(mockReportTemplates);
+  const [templates, setTemplates] = useState<ReportTemplate[]>([]);
   const [expandedTemplate, setExpandedTemplate] = useState<string | null>(null);
 
   const handleToggleSection = (templateId: string, sectionId: string) => {

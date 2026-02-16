@@ -1,6 +1,5 @@
 import { AppLayout } from '@/components/layout/AppLayout';
 import { ActivityFeed } from '@/components/dashboard/ActivityFeed';
-import { mockActivities } from '@/data/mockData';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -67,7 +66,7 @@ const Activity = () => {
       </div>
 
       {/* Activity Feed */}
-      <ActivityFeed activities={mockActivities} title="All Activities" />
+      <ActivityFeed activities={[]} title="All Activities" />
     </AppLayout>
   );
 };

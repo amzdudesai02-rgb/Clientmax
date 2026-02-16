@@ -19,7 +19,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { mockReportSchedules } from '@/data/mockData';
 import type { ReportSchedule } from '@/types';
 import { toast } from '@/hooks/use-toast';
 
@@ -32,7 +31,7 @@ const frequencyLabels: Record<string, string> = {
 const dayOfWeekLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 export function ScheduleManager() {
-  const [schedules, setSchedules] = useState<ReportSchedule[]>(mockReportSchedules);
+  const [schedules, setSchedules] = useState<ReportSchedule[]>([]);
 
   const handleToggleSchedule = (scheduleId: string) => {
     setSchedules(prev => 

@@ -75,7 +75,10 @@ export function OpportunityCards({ opportunities, title = 'Growth Opportunities'
 
       {/* Opportunity Cards */}
       <div className="grid gap-4">
-        {opportunities.map((opportunity) => {
+        {opportunities.length === 0 ? (
+          <p className="text-sm text-muted-foreground py-4">No opportunities yet.</p>
+        ) : (
+        opportunities.map((opportunity) => {
           const config = typeConfig[opportunity.type];
           const Icon = config.icon;
 
@@ -147,7 +150,8 @@ export function OpportunityCards({ opportunities, title = 'Growth Opportunities'
               </div>
             </div>
           );
-        })}
+        })
+        )}
       </div>
     </div>
   );

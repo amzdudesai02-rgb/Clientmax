@@ -14,15 +14,15 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import { generatePerformanceData } from '@/data/mockData';
 import { format } from 'date-fns';
+import type { PerformanceDataPoint } from '@/types';
 
 interface ClientPerformanceChartProps {
   clientId: string;
 }
 
 export function ClientPerformanceChart({ clientId }: ClientPerformanceChartProps) {
-  const data = useMemo(() => generatePerformanceData(clientId), [clientId]);
+  const data = useMemo<PerformanceDataPoint[]>(() => [], [clientId]);
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -64,6 +64,19 @@ export function ClientPerformanceChart({ clientId }: ClientPerformanceChartProps
     }
     return null;
   };
+
+  if (data.length === 0) {
+    return (
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-lg">Performance Analytics</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-muted-foreground text-center py-8">No performance data yet.</p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card>

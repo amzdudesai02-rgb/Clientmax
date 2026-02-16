@@ -1,16 +1,17 @@
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { mockClientFeedback } from '@/data/mockData';
 import { Star, TrendingUp, TrendingDown, MessageSquare, BarChart3 } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 
-const FeedbackAnalytics = () => {
-  const overallAverage = (
-    mockClientFeedback.reduce((sum, f) => sum + f.score, 0) / mockClientFeedback.length
-  ).toFixed(1);
+const clientFeedback: Array<{ id: string; clientId: string; clientName: string; score: number; submittedAt: string; comment?: string }> = [];
 
-  const sortedFeedback = [...mockClientFeedback].sort(
+const FeedbackAnalytics = () => {
+  const overallAverage = clientFeedback.length
+    ? (clientFeedback.reduce((sum, f) => sum + f.score, 0) / clientFeedback.length).toFixed(1)
+    : '0.0';
+
+  const sortedFeedback = [...clientFeedback].sort(
     (a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime()
   );
 
@@ -53,7 +54,7 @@ const FeedbackAnalytics = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Total Responses</p>
-                <p className="text-3xl font-bold">{mockClientFeedback.length}</p>
+                <p className="text-3xl font-bold">{clientFeedback.length}</p>
               </div>
               <MessageSquare className="w-8 h-8 text-muted-foreground" />
             </div>
@@ -66,7 +67,7 @@ const FeedbackAnalytics = () => {
               <div>
                 <p className="text-sm text-muted-foreground">Promoters (8-10)</p>
                 <p className="text-3xl font-bold text-success">
-                  {mockClientFeedback.filter(f => f.score >= 8).length}
+                  {clientFeedback.filter(f => f.score >= 8).length}
                 </p>
               </div>
               <TrendingUp className="w-8 h-8 text-success" />
@@ -80,7 +81,7 @@ const FeedbackAnalytics = () => {
               <div>
                 <p className="text-sm text-muted-foreground">Detractors (1-5)</p>
                 <p className="text-3xl font-bold text-destructive">
-                  {mockClientFeedback.filter(f => f.score <= 5).length}
+                  {clientFeedback.filter(f => f.score <= 5).length}
                 </p>
               </div>
               <TrendingDown className="w-8 h-8 text-destructive" />
@@ -96,7 +97,10 @@ const FeedbackAnalytics = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {recentFeedback.map((feedback) => (
+            {recentFeedback.length === 0 ? (
+              <p className="text-muted-foreground text-center py-8">No feedback yet. Client feedback will appear here.</p>
+            ) : (
+            recentFeedback.map((feedback) => (
               <div 
                 key={feedback.id} 
                 className="flex items-start justify-between p-4 rounded-lg bg-muted/50"
@@ -108,15 +112,16 @@ const FeedbackAnalytics = () => {
                       {feedback.score}/10
                     </Badge>
                   </div>
-                  {feedback.feedback && (
-                    <p className="text-sm text-muted-foreground">"{feedback.feedback}"</p>
+                  {feedback.comment && (
+                    <p className="text-sm text-muted-foreground">"{feedback.comment}"</p>
                   )}
                 </div>
                 <p className="text-xs text-muted-foreground">
                   {format(parseISO(feedback.submittedAt), 'MMM d, yyyy')}
                 </p>
               </div>
-            ))}
+            ))
+            )}
           </div>
         </CardContent>
       </Card>

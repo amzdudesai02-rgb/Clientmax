@@ -22,9 +22,8 @@ import {
   Sparkles
 } from 'lucide-react';
 import { ReportPDFDocument } from './ReportPDFDocument';
-import { mockReportTemplates, generatePerformanceData } from '@/data/mockData';
 import { supabase } from '@/integrations/supabase/client';
-import type { ReportTemplate, ReportType, Client } from '@/types';
+import type { ReportTemplate, ReportType, Client, PerformanceDataPoint } from '@/types';
 import { toast } from '@/hooks/use-toast';
 
 interface DBClient {
@@ -58,6 +57,7 @@ export function ReportGenerator({ onReportGenerated, userType = 'employee', clie
   const [clients, setClients] = useState<DBClient[]>([]);
   const [useAI, setUseAI] = useState(false);
   const [aiGenerating, setAiGenerating] = useState(false);
+  const reportTemplates: ReportTemplate[] = [];
   const isClientUser = userType === 'client';
 
   useEffect(() => {
@@ -290,7 +290,7 @@ export function ReportGenerator({ onReportGenerated, userType = 'employee', clie
       const dbClient = clients.find(c => c.id === selectedClient);
       if (!dbClient) throw new Error('Client not found');
 
-      const performanceData = generatePerformanceData(selectedClient);
+      const performanceData: PerformanceDataPoint[] = [];
       const reportId = `report_${Date.now()}`;
 
       // Convert to the format expected by ReportPDFDocument
@@ -484,7 +484,7 @@ export function ReportGenerator({ onReportGenerated, userType = 'employee', clie
                     <SelectValue placeholder="Choose a template..." />
                   </SelectTrigger>
                   <SelectContent>
-                    {mockReportTemplates.map((template) => (
+                    {reportTemplates.map((template) => (
                       <SelectItem key={template.id} value={template.id}>
                         <div className="flex items-center gap-2">
                           <span>{template.name}</span>
@@ -601,7 +601,7 @@ export function ReportGenerator({ onReportGenerated, userType = 'employee', clie
                   <SelectValue placeholder="Choose a template..." />
                 </SelectTrigger>
                 <SelectContent>
-                  {mockReportTemplates.map((template) => (
+                  {reportTemplates.map((template) => (
                     <SelectItem key={template.id} value={template.id}>
                       {template.name}
                     </SelectItem>

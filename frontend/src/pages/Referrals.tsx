@@ -13,38 +13,8 @@ import {
   ArrowRight
 } from 'lucide-react';
 
-const mockReferrals = [
-  {
-    id: '1',
-    referredBy: 'NaturaCare Supplements',
-    referralName: 'Organic Beauty Co',
-    status: 'contacted',
-    date: '2026-01-12',
-    potentialMRR: 2500,
-  },
-  {
-    id: '2',
-    referredBy: 'TechGear Pro',
-    referralName: 'SmartHome Innovations',
-    status: 'meeting_set',
-    date: '2026-01-08',
-    potentialMRR: 1800,
-  },
-  {
-    id: '3',
-    referredBy: 'Seoul Snacks Co',
-    referralName: 'Asian Delights',
-    status: 'won',
-    date: '2025-12-15',
-    potentialMRR: 1500,
-  },
-];
-
-const topReferrers = [
-  { name: 'NaturaCare Supplements', referrals: 5, revenue: 8500 },
-  { name: 'TechGear Pro', referrals: 3, revenue: 5200 },
-  { name: 'Seoul Snacks Co', referrals: 2, revenue: 3000 },
-];
+const referrals: Array<{ id: string; referredBy: string; referralName: string; status: string; date: string; potentialMRR: number }> = [];
+const topReferrers: Array<{ name: string; referrals: number; revenue: number }> = [];
 
 const Referrals = () => {
   return (
@@ -60,7 +30,7 @@ const Referrals = () => {
               <UserPlus className="w-4 h-4" />
               Total Referrals
             </CardDescription>
-            <CardTitle className="text-3xl">28</CardTitle>
+            <CardTitle className="text-3xl">{referrals.length}</CardTitle>
           </CardHeader>
         </Card>
         <Card>
@@ -69,7 +39,7 @@ const Referrals = () => {
               <Trophy className="w-4 h-4" />
               Conversion Rate
             </CardDescription>
-            <CardTitle className="text-3xl">64%</CardTitle>
+            <CardTitle className="text-3xl">{referrals.length ? Math.round((referrals.filter(r => r.status === 'won').length / referrals.length) * 100) : 0}%</CardTitle>
           </CardHeader>
         </Card>
         <Card>
@@ -78,7 +48,7 @@ const Referrals = () => {
               <TrendingUp className="w-4 h-4" />
               Referred Revenue
             </CardDescription>
-            <CardTitle className="text-3xl">$42K</CardTitle>
+            <CardTitle className="text-3xl">${topReferrers.length ? (topReferrers.reduce((s, t) => s + t.revenue, 0) / 1000).toFixed(0) + 'K' : '0'}</CardTitle>
           </CardHeader>
         </Card>
         <Card>
@@ -87,7 +57,7 @@ const Referrals = () => {
               <Gift className="w-4 h-4" />
               Rewards Issued
             </CardDescription>
-            <CardTitle className="text-3xl">$4,200</CardTitle>
+            <CardTitle className="text-3xl">$0</CardTitle>
           </CardHeader>
         </Card>
       </div>
@@ -107,7 +77,10 @@ const Referrals = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {mockReferrals.map((referral) => (
+                {referrals.length === 0 ? (
+                <p className="text-muted-foreground text-center py-8">No referrals yet.</p>
+              ) : (
+                referrals.map((referral) => (
                   <div 
                     key={referral.id} 
                     className="flex items-center justify-between p-4 rounded-lg bg-muted/50"
@@ -137,7 +110,8 @@ const Referrals = () => {
                       </Button>
                     </div>
                   </div>
-                ))}
+                ))
+              )}
               </div>
             </CardContent>
           </Card>
@@ -153,7 +127,10 @@ const Referrals = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {topReferrers.map((referrer, index) => (
+              {topReferrers.length === 0 ? (
+                <p className="text-muted-foreground text-center py-8">No referrers yet.</p>
+              ) : (
+              topReferrers.map((referrer, index) => (
                 <div key={referrer.name} className="space-y-2">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -171,7 +148,8 @@ const Referrals = () => {
                     ${referrer.revenue.toLocaleString()} in referred revenue
                   </p>
                 </div>
-              ))}
+              ))
+              )}
             </div>
           </CardContent>
         </Card>

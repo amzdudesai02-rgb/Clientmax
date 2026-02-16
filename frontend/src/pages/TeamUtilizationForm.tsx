@@ -1,26 +1,65 @@
-import { useState } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { toast } from '@/hooks/use-toast';
-import { CheckCircle2, Users } from 'lucide-react';
-import { mockTeamLeads } from '@/data/mockData';
+import { CheckCircle2, Users, Loader2 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+
+type TeamLeadInfo = { id: string; name: string; email: string; department: string };
 
 const TeamUtilizationForm = () => {
   const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
   const teamLeadId = searchParams.get('id');
-  
-  const teamLead = mockTeamLeads.find(lead => lead.id === teamLeadId);
-  
-  const [utilization, setUtilization] = useState<number[]>([teamLead?.utilization || 75]);
+  const [teamLead, setTeamLead] = useState<TeamLeadInfo | null>(null);
+  const [loading, setLoading] = useState(!!teamLeadId);
+  const [utilization, setUtilization] = useState<number[]>([75]);
   const [notes, setNotes] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
 
-  if (!teamLead) {
+  useEffect(() => {
+    if (!teamLeadId) {
+      setTeamLead(null);
+      setLoading(false);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('team_leads')
+        .select('id, name, email, department')
+        .eq('id', teamLeadId)
+        .maybeSingle();
+      if (!cancelled) {
+        setLoading(false);
+        if (error) {
+          setTeamLead(null);
+          return;
+        }
+        setTeamLead(data ? { id: data.id, name: data.name ?? '', email: data.email ?? '', department: data.department ?? '' } : null);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [teamLeadId]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <Card className="w-full max-w-md">
+          <CardContent className="pt-6 flex items-center justify-center gap-2 text-muted-foreground">
+            <Loader2 className="w-5 h-5 animate-spin" />
+            <span>Loading...</span>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (!teamLeadId || !teamLead) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <Card className="w-full max-w-md">
