@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DashboardMetricsSettings } from '@/components/settings/DashboardMetricsSettings';
 import { ChangePasswordForm } from '@/components/settings/ChangePasswordForm';
 import { DataImport } from '@/components/settings/DataImport';
+import { SeedTestData } from '@/components/settings/SeedTestData';
 import { useAuth } from '@/hooks/useAuth';
 import { useClientAuth } from '@/hooks/useClientAuth';
 import { 
@@ -20,7 +21,8 @@ import {
   BarChart3,
   Shield,
   Upload,
-  Loader2
+  Loader2,
+  Beaker
 } from 'lucide-react';
 
 const Settings = () => {
@@ -101,6 +103,10 @@ const Settings = () => {
             <Link className="w-4 h-4" />
             Integrations
           </TabsTrigger>
+          <TabsTrigger value="testdata" className="gap-2">
+            <Beaker className="w-4 h-4" />
+            Test Data
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="security">
@@ -109,6 +115,10 @@ const Settings = () => {
 
         <TabsContent value="metrics">
           <DashboardMetricsSettings />
+        </TabsContent>
+
+        <TabsContent value="testdata">
+          <SeedTestData />
         </TabsContent>
 
         <TabsContent value="profile">

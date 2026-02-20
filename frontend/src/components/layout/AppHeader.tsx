@@ -2,6 +2,7 @@ import { Search, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { NotificationCenter } from '@/components/notifications/NotificationCenter';
+import { AddClientModal } from '@/components/clients/AddClientModal';
 import { useAuth } from '@/hooks/useAuth';
 
 interface AppHeaderProps {
@@ -40,10 +41,14 @@ export function AppHeader({ title, subtitle }: AppHeaderProps) {
 
         {/* Add Client - only for Admin (Junaid) */}
         {isAdminJunaid && (
-          <Button className="gap-2">
-            <Plus className="w-4 h-4" />
-            Add Client
-          </Button>
+          <AddClientModal
+            trigger={
+              <Button className="gap-2">
+                <Plus className="w-4 h-4" />
+                Add Client
+              </Button>
+            }
+          />
         )}
       </div>
     </header>

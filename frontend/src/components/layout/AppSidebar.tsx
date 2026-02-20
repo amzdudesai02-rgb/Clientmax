@@ -6,6 +6,7 @@ import {
   TrendingUp, 
   FileText, 
   UserPlus,
+  Briefcase,
   Settings,
   LogOut,
   LayoutGrid
@@ -22,6 +23,7 @@ const navigation = [
   { name: 'Activity', href: '/activity', icon: Activity },
   { name: 'Opportunities', href: '/opportunities', icon: TrendingUp },
   { name: 'Reports', href: '/reports', icon: FileText },
+  { name: 'Hiring & Interviews', href: '/hiring', icon: Briefcase },
   { name: 'Referrals', href: '/referrals', icon: UserPlus },
   { name: 'Settings', href: '/settings', icon: Settings },
 ];

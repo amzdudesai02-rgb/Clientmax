@@ -32,6 +32,7 @@ import {
 } from '@/components/ui/form';
 import { Plus } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { useClients } from '@/hooks/useClients';
 import type { Client, ClientType } from '@/types';
 
 const clientFormSchema = z.object({
@@ -82,6 +83,7 @@ const managers = [
 export const AddClientModal = ({ onClientAdded, trigger }: AddClientModalProps) => {
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { addClient, refetch } = useClients();
 
   const form = useForm<ClientFormData>({
     resolver: zodResolver(clientFormSchema),
@@ -98,40 +100,40 @@ export const AddClientModal = ({ onClientAdded, trigger }: AddClientModalProps) 
 
   const onSubmit = async (data: ClientFormData) => {
     setIsSubmitting(true);
-
-    // Simulate API call delay
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    // Create new client object
-    const newClient: Client = {
-      id: `client-${Date.now()}`,
-      name: data.name,
-      companyName: data.companyName,
-      type: data.type,
-      healthScore: 75, // Default starting health score
-      healthStatus: 'good',
-      revenue30Days: 0,
-      adSpend30Days: 0,
-      roas: 0,
-      assignedManager: managers.find(m => m.id === data.assignedManager)?.name || data.assignedManager,
-      package: data.package,
-      mrr: Number(data.mrr),
-      lastContactDate: new Date().toISOString(),
-      alertsActive: 0,
-      activeSince: new Date().toISOString(),
-    };
-
-    // Call callback if provided
-    onClientAdded?.(newClient);
-
-    toast({
-      title: 'Client Added Successfully',
-      description: `${data.companyName} has been added to your client list.`,
-    });
-
-    setIsSubmitting(false);
-    setOpen(false);
-    form.reset();
+    try {
+      const inserted = await addClient({
+        company_name: data.companyName,
+        contact_name: data.name,
+        email: data.email,
+        client_type: data.type as 'brand_owner' | 'wholesaler' | '3p_seller',
+        health_score: 75,
+        health_status: 'good',
+        mrr: Number(data.mrr),
+        package: data.package,
+        assigned_employee_id: null,
+        assigned_team_lead_id: null,
+        email_notifications_enabled: true,
+        amazon_connected: false,
+        amazon_seller_id: null,
+      });
+      await refetch();
+      const clientForCallback: Client = { id: inserted.id, name: inserted.contact_name, companyName: inserted.company_name, type: inserted.client_type, healthScore: inserted.health_score, healthStatus: inserted.health_status, revenue30Days: 0, adSpend30Days: 0, roas: 0, assignedManager: '', package: inserted.package, mrr: inserted.mrr, lastContactDate: new Date().toISOString(), alertsActive: 0, activeSince: new Date().toISOString() };
+      onClientAdded?.(clientForCallback);
+      toast({
+        title: 'Client Added Successfully',
+        description: `${data.companyName} has been added to your client list.`,
+      });
+      setOpen(false);
+      form.reset();
+    } catch (err) {
+      toast({
+        title: 'Failed to add client',
+        description: err instanceof Error ? err.message : 'Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (

@@ -371,6 +371,9 @@ const EmployeePortal = () => {
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-base">Recent Updates</CardTitle>
+                <CardDescription>
+                  Toggle &quot;Show to client&quot; to make an update visible in the client portal (Recent Activity).
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <ScrollArea className="h-[400px] pr-4">

@@ -13,7 +13,6 @@ import {
   Building2, 
   Package, 
   ShoppingCart, 
-  ExternalLink, 
   Search,
   TrendingUp,
   Clock,
@@ -204,17 +203,11 @@ const Portals = () => {
                       </Badge>
                     </div>
                     
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-1 gap-2">
                       <Link to={`/wholesaler-portal?clientId=${client.id}`}>
                         <Button variant="outline" size="sm" className="w-full gap-2">
                           <Users className="w-4 h-4" />
                           Employee
-                        </Button>
-                      </Link>
-                      <Link to={`/clients/${client.id}`}>
-                        <Button variant="default" size="sm" className="w-full gap-2">
-                          <ExternalLink className="w-4 h-4" />
-                          Client
                         </Button>
                       </Link>
                     </div>
