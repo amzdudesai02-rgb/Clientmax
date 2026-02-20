@@ -4,8 +4,10 @@
   "installCommand": "cd frontend && npm install",
   "framework": "vite",
   "rewrites": [
+    { "source": "/team-form", "destination": "/index.html" },
+    { "source": "/team-form/:path*", "destination": "/index.html" },
     {
-      "source": "/(.*)",
+      "source": "/((?!assets/|_next/|favicon\\.png).*)",
       "destination": "/index.html"
     }
   ],

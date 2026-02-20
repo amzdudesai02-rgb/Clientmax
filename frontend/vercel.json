@@ -4,9 +4,8 @@
   "installCommand": "npm install",
   "framework": "vite",
   "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
-    }
+    { "source": "/team-form", "destination": "/index.html" },
+    { "source": "/team-form/:path*", "destination": "/index.html" },
+    { "source": "/((?!assets/|_next/|favicon\\.png).*)", "destination": "/index.html" }
   ]
 }
