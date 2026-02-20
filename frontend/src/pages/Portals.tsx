@@ -7,20 +7,19 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { useClients } from '@/hooks/useClients';
+import { useClients, useEmployees } from '@/hooks/useClients';
 import { 
   Users, 
+  UserPlus,
   Building2, 
   Package, 
   ShoppingCart, 
   Search,
-  TrendingUp,
-  Clock,
-  CheckCircle,
   AlertCircle,
-  Loader2
+  Loader2,
+  Briefcase,
+  Mail
 } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
 
 const clientTypeConfig = {
   brand_owner: {
@@ -44,21 +43,38 @@ const clientTypeConfig = {
 };
 
 const Portals = () => {
-  const { clients, loading } = useClients();
+  const { clients, loading: clientsLoading } = useClients();
+  const { employees, loading: employeesLoading } = useEmployees();
+  const [pageTab, setPageTab] = useState<'clients' | 'employees'>('clients');
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeTab, setActiveTab] = useState('all');
+  const [clientFilter, setClientFilter] = useState('all');
+  const [employeeSearch, setEmployeeSearch] = useState('');
+  const [employeeRoleFilter, setEmployeeRoleFilter] = useState('all');
 
   const filteredClients = clients.filter(client => {
     const matchesSearch = searchQuery === '' || 
       client.company_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       client.contact_name.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesType = activeTab === 'all' || client.client_type === activeTab;
+    const matchesType = clientFilter === 'all' || client.client_type === clientFilter;
     return matchesSearch && matchesType;
   });
 
   const wholesalers = clients.filter(c => c.client_type === 'wholesaler');
   const brandOwners = clients.filter(c => c.client_type === 'brand_owner');
   const sellers3p = clients.filter(c => c.client_type === '3p_seller');
+
+  const roles = Array.from(new Set(employees.map(e => e.role || 'Employee'))).sort();
+  const ceos = employees.filter(e => e.role === 'CEO');
+  const nonCeos = employees.filter(e => e.role !== 'CEO');
+  const filteredEmployees = employees.filter(emp => {
+    const matchesSearch = employeeSearch === '' ||
+      emp.name.toLowerCase().includes(employeeSearch.toLowerCase()) ||
+      emp.email.toLowerCase().includes(employeeSearch.toLowerCase());
+    const matchesRole = employeeRoleFilter === 'all' || (emp.role || 'Employee') === employeeRoleFilter;
+    return matchesSearch && matchesRole;
+  });
+
+  const loading = clientsLoading || employeesLoading;
 
   const getHealthBadge = (status: string, score: number) => {
     const variants = {
@@ -87,137 +103,265 @@ const Portals = () => {
   return (
     <AppLayout 
       title="Client & Employee Portals" 
-      subtitle="Access and manage all client portals from one place"
+      subtitle="Access and manage all client and employee portals from one place"
     >
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <Card className="border-l-4 border-l-foreground/20">
-          <CardContent className="pt-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Total Clients</p>
-                <p className="text-2xl font-bold">{clients.length}</p>
-              </div>
-              <Users className="w-8 h-8 text-muted-foreground" />
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="border-l-4 border-l-success">
-          <CardContent className="pt-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Wholesalers</p>
-                <p className="text-2xl font-bold">{wholesalers.length}</p>
-              </div>
-              <Package className="w-8 h-8 text-success" />
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="border-l-4 border-l-primary">
-          <CardContent className="pt-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Brand Owners</p>
-                <p className="text-2xl font-bold">{brandOwners.length}</p>
-              </div>
-              <Building2 className="w-8 h-8 text-primary" />
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="border-l-4 border-l-warning">
-          <CardContent className="pt-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">3P Sellers</p>
-                <p className="text-2xl font-bold">{sellers3p.length}</p>
-              </div>
-              <ShoppingCart className="w-8 h-8 text-warning" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      <Tabs value={pageTab} onValueChange={(v) => setPageTab(v as 'clients' | 'employees')} className="space-y-6">
+        <TabsList className="grid w-full max-w-md grid-cols-2">
+          <TabsTrigger value="clients" className="gap-2">
+            <Building2 className="w-4 h-4" />
+            Clients ({clients.length})
+          </TabsTrigger>
+          <TabsTrigger value="employees" className="gap-2">
+            <Users className="w-4 h-4" />
+            Employees ({employees.length})
+          </TabsTrigger>
+        </TabsList>
 
-      {/* Search and Filters */}
-      <div className="flex flex-wrap items-center gap-4 mb-6">
-        <div className="relative flex-1 min-w-[250px] max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input 
-            placeholder="Search clients..." 
-            className="pl-9"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1">
-          <TabsList>
-            <TabsTrigger value="all">All ({clients.length})</TabsTrigger>
-            <TabsTrigger value="wholesaler" className="gap-2">
-              <Package className="w-4 h-4" />
-              Wholesalers ({wholesalers.length})
-            </TabsTrigger>
-            <TabsTrigger value="brand_owner" className="gap-2">
-              <Building2 className="w-4 h-4" />
-              Brand Owners ({brandOwners.length})
-            </TabsTrigger>
-            <TabsTrigger value="3p_seller" className="gap-2">
-              <ShoppingCart className="w-4 h-4" />
-              3P Sellers ({sellers3p.length})
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
-      </div>
+        {/* Clients section */}
+        <TabsContent value="clients" className="space-y-6 mt-0">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <Card className="border-l-4 border-l-foreground/20">
+              <CardContent className="pt-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Total Clients</p>
+                    <p className="text-2xl font-bold">{clients.length}</p>
+                  </div>
+                  <Users className="w-8 h-8 text-muted-foreground" />
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="border-l-4 border-l-success">
+              <CardContent className="pt-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Wholesalers</p>
+                    <p className="text-2xl font-bold">{wholesalers.length}</p>
+                  </div>
+                  <Package className="w-8 h-8 text-success" />
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="border-l-4 border-l-primary">
+              <CardContent className="pt-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Brand Owners</p>
+                    <p className="text-2xl font-bold">{brandOwners.length}</p>
+                  </div>
+                  <Building2 className="w-8 h-8 text-primary" />
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="border-l-4 border-l-warning">
+              <CardContent className="pt-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">3P Sellers</p>
+                    <p className="text-2xl font-bold">{sellers3p.length}</p>
+                  </div>
+                  <ShoppingCart className="w-8 h-8 text-warning" />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
 
-      {/* Client Portal Cards */}
-      <ScrollArea className="h-[calc(100vh-380px)]">
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 pr-4">
-          {filteredClients.length === 0 ? (
-            <div className="col-span-full text-center py-12">
-              <AlertCircle className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-              <p className="text-muted-foreground">No clients found matching your search.</p>
+          <div className="flex flex-wrap items-center gap-4">
+            <div className="relative flex-1 min-w-[250px] max-w-md">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input 
+                placeholder="Search clients..." 
+                className="pl-9"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
             </div>
-          ) : (
-            filteredClients.map(client => {
-              const config = clientTypeConfig[client.client_type as keyof typeof clientTypeConfig] || clientTypeConfig.wholesaler;
-              const TypeIcon = config.icon;
-              
-              return (
-                <Card key={client.id} className={`hover:shadow-md transition-shadow ${config.bgColor}`}>
-                  <CardHeader className="pb-3">
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className={`w-10 h-10 rounded-lg ${config.color} flex items-center justify-center border`}>
-                          <TypeIcon className="w-5 h-5" />
+            <Tabs value={clientFilter} onValueChange={setClientFilter} className="flex-1">
+              <TabsList>
+                <TabsTrigger value="all">All ({clients.length})</TabsTrigger>
+                <TabsTrigger value="wholesaler" className="gap-2">
+                  <Package className="w-4 h-4" />
+                  Wholesalers ({wholesalers.length})
+                </TabsTrigger>
+                <TabsTrigger value="brand_owner" className="gap-2">
+                  <Building2 className="w-4 h-4" />
+                  Brand Owners ({brandOwners.length})
+                </TabsTrigger>
+                <TabsTrigger value="3p_seller" className="gap-2">
+                  <ShoppingCart className="w-4 h-4" />
+                  3P Sellers ({sellers3p.length})
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+          </div>
+
+          <ScrollArea className="h-[calc(100vh-520px)]">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 pr-4">
+              {filteredClients.length === 0 ? (
+                <div className="col-span-full text-center py-12">
+                  <AlertCircle className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+                  <p className="text-muted-foreground">No clients found matching your search.</p>
+                </div>
+              ) : (
+                filteredClients.map(client => {
+                  const config = clientTypeConfig[client.client_type as keyof typeof clientTypeConfig] || clientTypeConfig.wholesaler;
+                  const TypeIcon = config.icon;
+                  return (
+                    <Card key={client.id} className={`hover:shadow-md transition-shadow ${config.bgColor}`}>
+                      <CardHeader className="pb-3">
+                        <div className="flex items-start justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className={`w-10 h-10 rounded-lg ${config.color} flex items-center justify-center border`}>
+                              <TypeIcon className="w-5 h-5" />
+                            </div>
+                            <div>
+                              <CardTitle className="text-base">{client.company_name}</CardTitle>
+                              <CardDescription>{client.contact_name}</CardDescription>
+                            </div>
+                          </div>
+                          {getHealthBadge(client.health_status, client.health_score)}
                         </div>
-                        <div>
-                          <CardTitle className="text-base">{client.company_name}</CardTitle>
-                          <CardDescription>{client.contact_name}</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
+                          <Badge variant="secondary" className="text-xs">
+                            {config.label}
+                          </Badge>
                         </div>
-                      </div>
-                      {getHealthBadge(client.health_status, client.health_score)}
+                        <Link to={`/wholesaler-portal?clientId=${client.id}`}>
+                          <Button variant="outline" size="sm" className="w-full gap-2">
+                            <Users className="w-4 h-4" />
+                            Employee
+                          </Button>
+                        </Link>
+                      </CardContent>
+                    </Card>
+                  );
+                })
+              )}
+            </div>
+          </ScrollArea>
+        </TabsContent>
+
+        {/* Employees section */}
+        <TabsContent value="employees" className="space-y-6 mt-0">
+          <div className="flex items-center justify-between flex-wrap gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 flex-1">
+              <Card className="border-l-4 border-l-foreground/20">
+                <CardContent className="pt-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Total Employees</p>
+                      <p className="text-2xl font-bold">{employees.length}</p>
                     </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
-                      <Badge variant="secondary" className="text-xs">
-                        {config.label}
-                      </Badge>
+                    <Users className="w-8 h-8 text-muted-foreground" />
+                  </div>
+                </CardContent>
+              </Card>
+              <Card className="border-l-4 border-l-primary">
+                <CardContent className="pt-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">CEO</p>
+                      <p className="text-2xl font-bold">{ceos.length}</p>
                     </div>
-                    
-                    <div className="grid grid-cols-1 gap-2">
-                      <Link to={`/wholesaler-portal?clientId=${client.id}`}>
-                        <Button variant="outline" size="sm" className="w-full gap-2">
-                          <Users className="w-4 h-4" />
-                          Employee
-                        </Button>
-                      </Link>
+                    <Briefcase className="w-8 h-8 text-primary" />
+                  </div>
+                </CardContent>
+              </Card>
+              <Card className="border-l-4 border-l-success">
+                <CardContent className="pt-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Employees</p>
+                      <p className="text-2xl font-bold">{nonCeos.length}</p>
                     </div>
-                  </CardContent>
-                </Card>
-              );
-            })
-          )}
-        </div>
-      </ScrollArea>
+                    <UserPlus className="w-8 h-8 text-success" />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+            <Link to="/settings">
+              <Button className="gap-2">
+                <UserPlus className="w-4 h-4" />
+                Add Employee
+              </Button>
+            </Link>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-4">
+            <div className="relative flex-1 min-w-[250px] max-w-md">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input 
+                placeholder="Search employees..." 
+                className="pl-9"
+                value={employeeSearch}
+                onChange={(e) => setEmployeeSearch(e.target.value)}
+              />
+            </div>
+            <Tabs value={employeeRoleFilter} onValueChange={setEmployeeRoleFilter} className="flex-1">
+              <TabsList>
+                <TabsTrigger value="all">All ({employees.length})</TabsTrigger>
+                {roles.map(role => (
+                  <TabsTrigger key={role} value={role} className="gap-2">
+                    {role === 'CEO' ? <Briefcase className="w-4 h-4" /> : <UserPlus className="w-4 h-4" />}
+                    {role} ({employees.filter(e => (e.role || 'Employee') === role).length})
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+            </Tabs>
+          </div>
+
+          <ScrollArea className="h-[calc(100vh-520px)]">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 pr-4">
+              {filteredEmployees.length === 0 ? (
+                <div className="col-span-full text-center py-12">
+                  <AlertCircle className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+                  <p className="text-muted-foreground">No employees found matching your search.</p>
+                </div>
+              ) : (
+                filteredEmployees.map(emp => {
+                  const initials = emp.name.trim().split(/\s+/).length >= 2
+                    ? (emp.name.trim().split(/\s+/)[0][0] + emp.name.trim().split(/\s+/).pop()![0]).toUpperCase()
+                    : emp.name.substring(0, 2).toUpperCase();
+                  const role = emp.role || 'Employee';
+                  return (
+                    <Card key={emp.id} className="hover:shadow-md transition-shadow bg-card">
+                      <CardHeader className="pb-3">
+                        <div className="flex items-start justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-lg bg-primary/10 text-primary border border-primary/20 flex items-center justify-center font-semibold text-sm">
+                              {initials}
+                            </div>
+                            <div>
+                              <CardTitle className="text-base">{emp.name}</CardTitle>
+                              <CardDescription className="flex items-center gap-1 mt-0.5">
+                                <Mail className="w-3 h-3" />
+                                {emp.email}
+                              </CardDescription>
+                            </div>
+                          </div>
+                          <Badge variant={role === 'CEO' ? 'default' : 'secondary'} className="text-xs">
+                            {role}
+                          </Badge>
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        <Link to={`/employees/${emp.id}`}>
+                          <Button variant="outline" size="sm" className="w-full gap-2">
+                            <Users className="w-4 h-4" />
+                            View
+                          </Button>
+                        </Link>
+                      </CardContent>
+                    </Card>
+                  );
+                })
+              )}
+            </div>
+          </ScrollArea>
+        </TabsContent>
+      </Tabs>
     </AppLayout>
   );
 };

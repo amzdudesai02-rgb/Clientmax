@@ -34,6 +34,7 @@ const EmployeePortal = lazy(() => import("./pages/EmployeePortal"));
 const SmartClientPortal = lazy(() => import("./pages/SmartClientPortal"));
 const WholesalerEmployeePortal = lazy(() => import("./pages/WholesalerEmployeePortal"));
 const Portals = lazy(() => import("./pages/Portals"));
+const EmployeeDetail = lazy(() => import("./pages/EmployeeDetail"));
 const EmployeeAuth = lazy(() => import("./pages/EmployeeAuth"));
 const EmployeeDashboard = lazy(() => import("./pages/EmployeeDashboard"));
 const ClientAuth = lazy(() => import("./pages/ClientAuth"));
@@ -93,6 +94,14 @@ const App = () => (
             element={
               <ProtectedRoute userType="employee">
                 <LazyRoute><Portals /></LazyRoute>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/employees/:id"
+            element={
+              <ProtectedRoute userType="employee">
+                <LazyRoute><EmployeeDetail /></LazyRoute>
               </ProtectedRoute>
             }
           />
