@@ -12,8 +12,8 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
  * redirects clients to their portal, and unauthenticated users to login.
  */
 export const RootRedirect = () => {
-  const { employee, loading: employeeLoading, isAuthenticated: isEmployeeAuth, user: employeeUser } = useAuth();
-  const { client, loading: clientLoading, isAuthenticated: isClientAuth } = useClientAuth();
+  const { employee, loading: employeeLoading, isAuthenticated: isEmployeeAuth, user: employeeUser, mustChangePassword: employeeMustChangePassword } = useAuth();
+  const { client, loading: clientLoading, isAuthenticated: isClientAuth, mustChangePassword: clientMustChangePassword } = useClientAuth();
   const [showWakeUpMessage, setShowWakeUpMessage] = useState(false);
 
   const loading = employeeLoading || clientLoading;
@@ -75,6 +75,14 @@ export const RootRedirect = () => {
         </div>
       </div>
     );
+  }
+
+  // If authenticated but must change password (default password), go to change-password first
+  if (isEmployee && employeeMustChangePassword) {
+    return <Navigate to="/change-password" replace />;
+  }
+  if (isClient && clientMustChangePassword) {
+    return <Navigate to="/change-password" replace />;
   }
 
   // If authenticated as employee (CEO or regular), show dashboard

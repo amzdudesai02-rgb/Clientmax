@@ -8,6 +8,8 @@ import { Loader2, AlertCircle, CheckCircle2, Eye, EyeOff, Lock } from 'lucide-re
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { z } from 'zod';
+import { useAuth } from '@/hooks/useAuth';
+import { useClientAuth } from '@/hooks/useClientAuth';
 
 const passwordSchema = z.string().min(6, 'Password must be at least 6 characters');
 
@@ -22,6 +24,8 @@ export function ChangePasswordForm() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const { clearMustChangePassword: clearEmployee } = useAuth();
+  const { clearMustChangePassword: clearClient } = useClientAuth();
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
@@ -82,6 +86,8 @@ export function ChangePasswordForm() {
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
+      await clearEmployee();
+      await clearClient();
       toast.success('Password updated successfully.');
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Failed to update password.';

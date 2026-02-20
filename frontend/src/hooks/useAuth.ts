@@ -14,6 +14,7 @@ export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [employee, setEmployee] = useState<Employee | null>(null);
+  const [mustChangePassword, setMustChangePassword] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -27,9 +28,11 @@ export function useAuth() {
         if (session?.user) {
           setTimeout(() => {
             fetchEmployeeData(session.user.id);
+            fetchMustChangePassword(session.user.id);
           }, 0);
         } else {
           setEmployee(null);
+          setMustChangePassword(null);
           setLoading(false);
         }
       }
@@ -41,6 +44,7 @@ export function useAuth() {
       setUser(session?.user ?? null);
       if (session?.user) {
         fetchEmployeeData(session.user.id);
+        fetchMustChangePassword(session.user.id);
       } else {
         setLoading(false);
       }
@@ -48,6 +52,25 @@ export function useAuth() {
 
     return () => subscription.unsubscribe();
   }, []);
+
+  const fetchMustChangePassword = async (authUserId: string) => {
+    try {
+      const { data } = await supabase
+        .from('user_roles')
+        .select('must_change_password')
+        .eq('user_id', authUserId)
+        .maybeSingle();
+      setMustChangePassword(data?.must_change_password ?? false);
+    } catch {
+      setMustChangePassword(false);
+    }
+  };
+
+  const clearMustChangePassword = useCallback(async () => {
+    if (!user?.id) return;
+    await supabase.from('user_roles').update({ must_change_password: false }).eq('user_id', user.id);
+    setMustChangePassword(false);
+  }, [user?.id]);
 
   const fetchEmployeeData = async (authUserId: string) => {
     let timeoutId: NodeJS.Timeout | null = null;
@@ -196,6 +219,8 @@ export function useAuth() {
     session,
     employee,
     loading,
+    mustChangePassword: mustChangePassword === true,
+    clearMustChangePassword,
     signIn,
     signUp,
     signOut,

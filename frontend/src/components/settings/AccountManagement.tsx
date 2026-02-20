@@ -94,7 +94,8 @@ export function AccountManagement() {
   // Form state for new account
   const [selectedType, setSelectedType] = useState<'employee' | 'client'>('employee');
   const [selectedRecord, setSelectedRecord] = useState<string>('');
-  const [password, setPassword] = useState('');
+  const DEFAULT_PASSWORD = 'password123';
+  const [password, setPassword] = useState(DEFAULT_PASSWORD);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
@@ -196,10 +197,11 @@ export function AccountManagement() {
         
         if (linkError) throw linkError;
         
-        // Add employee role
+        // Add employee role; require password change after first sign-in
         await supabase.from('user_roles').insert({
           user_id: authData.user.id,
-          role: 'employee'
+          role: 'employee',
+          must_change_password: true
         });
       } else {
         const { error: linkError } = await supabase
@@ -209,15 +211,16 @@ export function AccountManagement() {
         
         if (linkError) throw linkError;
         
-        // Add client role
+        // Add client role; require password change after first sign-in
         await supabase.from('user_roles').insert({
           user_id: authData.user.id,
-          role: 'client'
+          role: 'client',
+          must_change_password: true
         });
       }
       
-      setSuccess(`Account created successfully for ${record.email}`);
-      setPassword('');
+      setSuccess(`Account created. Default password is ${DEFAULT_PASSWORD}. User must change it after first sign-in.`);
+      setPassword(DEFAULT_PASSWORD);
       setSelectedRecord('');
       toast.success('Account created successfully!');
       fetchData();
@@ -432,9 +435,17 @@ export function AccountManagement() {
                 >
                   <Key className="w-4 h-4" />
                 </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPassword(DEFAULT_PASSWORD)}
+                >
+                  Use default (password123)
+                </Button>
               </div>
               <p className="text-xs text-muted-foreground">
-                Share this password securely with the user
+                Default is password123. User must change it after first sign-in.
               </p>
             </div>
           </div>

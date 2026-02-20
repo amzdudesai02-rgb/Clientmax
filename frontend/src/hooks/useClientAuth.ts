@@ -16,6 +16,7 @@ export function useClientAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [client, setClient] = useState<ClientData | null>(null);
+  const [mustChangePassword, setMustChangePassword] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -29,9 +30,11 @@ export function useClientAuth() {
         if (session?.user) {
           setTimeout(() => {
             fetchClientData(session.user.id);
+            fetchMustChangePassword(session.user.id);
           }, 0);
         } else {
           setClient(null);
+          setMustChangePassword(null);
           setLoading(false);
         }
       }
@@ -43,6 +46,7 @@ export function useClientAuth() {
       setUser(session?.user ?? null);
       if (session?.user) {
         fetchClientData(session.user.id);
+        fetchMustChangePassword(session.user.id);
       } else {
         setLoading(false);
       }
@@ -50,6 +54,25 @@ export function useClientAuth() {
 
     return () => subscription.unsubscribe();
   }, []);
+
+  const fetchMustChangePassword = async (authUserId: string) => {
+    try {
+      const { data } = await supabase
+        .from('user_roles')
+        .select('must_change_password')
+        .eq('user_id', authUserId)
+        .maybeSingle();
+      setMustChangePassword(data?.must_change_password ?? false);
+    } catch {
+      setMustChangePassword(false);
+    }
+  };
+
+  const clearMustChangePassword = useCallback(async () => {
+    if (!user?.id) return;
+    await supabase.from('user_roles').update({ must_change_password: false }).eq('user_id', user.id);
+    setMustChangePassword(false);
+  }, [user?.id]);
 
   const fetchClientData = async (authUserId: string) => {
     let timeoutId: NodeJS.Timeout | null = null;
@@ -106,6 +129,8 @@ export function useClientAuth() {
     session,
     client,
     loading,
+    mustChangePassword: mustChangePassword === true,
+    clearMustChangePassword,
     signIn,
     signOut,
     isAuthenticated: !!session,

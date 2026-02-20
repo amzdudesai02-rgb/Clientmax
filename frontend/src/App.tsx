@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { RootRedirect } from "@/components/RootRedirect";
+import { IdleLogout } from "@/components/IdleLogout";
 import { Loader2 } from "lucide-react";
 
 // Critical pages - load immediately (frequently used)
@@ -62,6 +63,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <IdleLogout />
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/" element={<RootRedirect />} />
