@@ -24,7 +24,6 @@ import {
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -48,13 +47,6 @@ const clientFormSchema = z.object({
   type: z.enum(['brand_owner', 'reseller', 'wholesaler', 'product_launcher', '3p_seller'], {
     required_error: 'Please select a client type',
   }),
-  package: z.string()
-    .min(1, { message: 'Please enter a package name' })
-    .max(50, { message: 'Package name must be less than 50 characters' }),
-  mrr: z.string()
-    .refine((val) => !isNaN(Number(val)) && Number(val) >= 0, {
-      message: 'MRR must be a positive number',
-    }),
   assignedManager: z.string()
     .min(1, { message: 'Please select a manager' }),
 });
@@ -92,8 +84,6 @@ export const AddClientModal = ({ onClientAdded, trigger }: AddClientModalProps) 
       email: '',
       companyName: '',
       type: undefined,
-      package: '',
-      mrr: '',
       assignedManager: '',
     },
   });
@@ -108,8 +98,8 @@ export const AddClientModal = ({ onClientAdded, trigger }: AddClientModalProps) 
         client_type: data.type as 'brand_owner' | 'wholesaler' | '3p_seller',
         health_score: 75,
         health_status: 'good',
-        mrr: Number(data.mrr),
-        package: data.package,
+        mrr: 0,
+        package: '',
         assigned_employee_id: null,
         assigned_team_lead_id: null,
         email_notifications_enabled: true,
@@ -246,42 +236,6 @@ export const AddClientModal = ({ onClientAdded, trigger }: AddClientModalProps) 
                         ))}
                       </SelectContent>
                     </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="package"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Package</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Growth Pro" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="mrr"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Monthly Recurring Revenue</FormLabel>
-                    <FormControl>
-                      <Input 
-                        type="number" 
-                        placeholder="5000" 
-                        min="0"
-                        {...field} 
-                      />
-                    </FormControl>
-                    <FormDescription>USD per month</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
