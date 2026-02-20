@@ -11,14 +11,24 @@ import * as XLSX from 'xlsx';
 
 type ImportType = 'clients' | 'employees';
 
+/** When 'employee', only Employees upload is shown. When 'client', only Clients upload is shown. */
+export type QuickDataUploadContext = 'employee' | 'client';
+
 interface ParsedRow {
   [key: string]: any;
   _rowIndex?: number;
   _errors?: string[];
 }
 
-export function QuickDataUpload() {
-  const [importType, setImportType] = useState<ImportType>('clients');
+interface QuickDataUploadProps {
+  /** Restrict dropdown to one type: employee context = only Employees, client context = only Clients */
+  context?: QuickDataUploadContext;
+}
+
+export function QuickDataUpload({ context }: QuickDataUploadProps = {}) {
+  const allowedTypes: ImportType[] = context === 'employee' ? ['employees'] : context === 'client' ? ['clients'] : ['clients', 'employees'];
+  const defaultType = allowedTypes[0];
+  const [importType, setImportType] = useState<ImportType>(defaultType);
   const [file, setFile] = useState<File | null>(null);
   const [parsedData, setParsedData] = useState<ParsedRow[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -341,8 +351,8 @@ export function QuickDataUpload() {
               </SelectValue>
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="clients">Clients</SelectItem>
-              <SelectItem value="employees">Employees</SelectItem>
+              {allowedTypes.includes('clients') && <SelectItem value="clients">Clients</SelectItem>}
+              {allowedTypes.includes('employees') && <SelectItem value="employees">Employees</SelectItem>}
             </SelectContent>
           </Select>
 

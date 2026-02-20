@@ -28,6 +28,7 @@ import {
   Plus
 } from 'lucide-react';
 import { useClients, DBClient } from '@/hooks/useClients';
+import { QuickDataUpload } from '@/components/dashboard/QuickDataUpload';
 
 type SortField = 'name' | 'healthScore' | 'mrr';
 type SortDirection = 'asc' | 'desc';
@@ -218,6 +219,10 @@ const Clients = () => {
             Export
           </Button>
         </div>
+      </div>
+
+      <div className="mb-6">
+        <QuickDataUpload context="client" />
       </div>
 
       {/* Client Cards Grid */}

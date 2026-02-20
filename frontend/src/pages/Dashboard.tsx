@@ -183,7 +183,7 @@ const Dashboard = () => {
       {/* Main Content - Single Column */}
       <div className="space-y-8">
         {/* Quick Data Upload */}
-        <QuickDataUpload />
+        <QuickDataUpload context="employee" />
 
         {/* Team Utilization */}
         <TeamUtilizationCard teamLeads={visibleTeamLeads} />
