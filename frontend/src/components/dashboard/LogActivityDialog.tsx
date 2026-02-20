@@ -43,7 +43,7 @@ interface LogActivityDialogProps {
     description: string;
     impact?: string | null;
     performed_by: string;
-  }) => Promise<ActivityLogEntry>;
+  }) => Promise<{ data: ActivityLogEntry | null; error: string | null }>;
   trigger?: React.ReactNode;
 }
 
@@ -73,7 +73,7 @@ export function LogActivityDialog({
     }
     setSubmitting(true);
     try {
-      await addActivity({
+      const result = await addActivity({
         client_id: clientId || null,
         type,
         title: title.trim(),
@@ -81,14 +81,22 @@ export function LogActivityDialog({
         impact: impact.trim() || null,
         performed_by: performedBy,
       });
-      toast({ title: 'Activity logged', description: 'The activity has been added to the feed.' });
-      setTitle('');
-      setDescription('');
-      setImpact('');
-      setClientId('');
-      setType('optimization');
-      setOpen(false);
-      onLogged?.();
+      if (result.error) {
+        toast({
+          title: 'Failed to log activity',
+          description: result.error,
+          variant: 'destructive',
+        });
+      } else {
+        toast({ title: 'Activity logged', description: 'The activity has been added to the feed.' });
+        setTitle('');
+        setDescription('');
+        setImpact('');
+        setClientId('');
+        setType('optimization');
+        setOpen(false);
+        onLogged?.();
+      }
     } catch (err) {
       toast({
         title: 'Failed to log activity',

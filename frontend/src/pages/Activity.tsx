@@ -16,7 +16,7 @@ import { useActivityLog } from '@/hooks/useActivityLog';
 import type { Activity } from '@/types';
 
 const Activity = () => {
-  const { activities: logEntries, loading, addActivity, refetch } = useActivityLog();
+  const { activities: logEntries, loading, fetchError, addActivity, refetch } = useActivityLog();
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState('all');
   const [teamFilter, setTeamFilter] = useState('all');
@@ -27,28 +27,34 @@ const Activity = () => {
     () =>
       safeLogEntries
         .filter((e) => {
+          const title = e?.title ?? '';
+          const desc = e?.description ?? '';
+          const by = e?.performed_by ?? '';
           const matchSearch =
             !search ||
-            e.title.toLowerCase().includes(search.toLowerCase()) ||
-            e.description.toLowerCase().includes(search.toLowerCase());
+            title.toLowerCase().includes(search.toLowerCase()) ||
+            desc.toLowerCase().includes(search.toLowerCase());
           const matchType = typeFilter === 'all' || e.type === typeFilter;
-          const matchTeam = teamFilter === 'all' || e.performed_by.toLowerCase().includes(teamFilter.toLowerCase());
+          const matchTeam = teamFilter === 'all' || by.toLowerCase().includes(teamFilter.toLowerCase());
           return matchSearch && matchType && matchTeam;
         })
         .map((e) => ({
           id: e.id,
           clientId: e.client_id ?? '',
-          type: e.type,
-          title: e.title,
-          description: e.description,
-          impact: e.impact ?? undefined,
-          timestamp: e.created_at,
-          performedBy: e.performed_by,
+          type: e.type ?? 'optimization',
+          title: e?.title ?? '',
+          description: e?.description ?? '',
+          impact: e?.impact ?? undefined,
+          timestamp: e?.created_at ?? new Date().toISOString(),
+          performedBy: e?.performed_by ?? '',
         })),
     [safeLogEntries, search, typeFilter, teamFilter]
   );
 
-  const teamMembers = useMemo(() => Array.from(new Set(safeLogEntries.map((e) => e.performed_by))).sort(), [safeLogEntries]);
+  const teamMembers = useMemo(
+    () => Array.from(new Set(safeLogEntries.map((e) => (e?.performed_by ?? '').trim()).filter(Boolean))).sort(),
+    [safeLogEntries]
+  );
 
   return (
     <AppLayout title="Activity Feed" subtitle="Track all actions taken across client accounts">
@@ -106,7 +112,16 @@ const Activity = () => {
           <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
         </div>
       ) : (
-        <ActivityFeed activities={activities} title="All Activities" />
+        <>
+          {fetchError && (
+            <p className="text-sm text-muted-foreground mb-4 rounded-lg border border-border bg-muted/50 p-4">
+              Activity log could not be loaded. If you have not run the Supabase migration yet, create the{' '}
+              <code className="text-xs bg-muted px-1 rounded">activity_log</code> table (see{' '}
+              <code className="text-xs bg-muted px-1 rounded">supabase/migrations/20260220000000_activity_log.sql</code>).
+            </p>
+          )}
+          <ActivityFeed activities={activities} title="All Activities" />
+        </>
       )}
     </AppLayout>
   );

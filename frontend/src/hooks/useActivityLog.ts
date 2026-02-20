@@ -16,8 +16,10 @@ export interface ActivityLogEntry {
 export function useActivityLog() {
   const [activities, setActivities] = useState<ActivityLogEntry[]>([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
   const fetchActivities = useCallback(async () => {
+    setFetchError(null);
     try {
       const { data, error } = await supabase
         .from('activity_log')
@@ -27,12 +29,14 @@ export function useActivityLog() {
 
       if (error) {
         console.error('Error fetching activity log:', error);
+        setFetchError(error.message);
         setActivities([]);
       } else {
         setActivities((data || []) as ActivityLogEntry[]);
       }
     } catch (e) {
       console.error('Activity log fetch failed:', e);
+      setFetchError(e instanceof Error ? e.message : 'Failed to load activity log');
       setActivities([]);
     } finally {
       setLoading(false);
@@ -52,7 +56,7 @@ export function useActivityLog() {
       description: string;
       impact?: string | null;
       performed_by: string;
-    }) => {
+    }): Promise<{ data: ActivityLogEntry | null; error: string | null }> => {
       const { data, error } = await supabase
         .from('activity_log')
         .insert([
@@ -69,12 +73,15 @@ export function useActivityLog() {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error adding activity:', error);
+        return { data: null, error: error.message };
+      }
       setActivities((prev) => [data as ActivityLogEntry, ...prev]);
-      return data as ActivityLogEntry;
+      return { data: data as ActivityLogEntry, error: null };
     },
     []
   );
 
-  return { activities, loading, addActivity, refetch: fetchActivities };
+  return { activities, loading, fetchError, addActivity, refetch: fetchActivities };
 }
