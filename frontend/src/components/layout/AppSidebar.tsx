@@ -121,11 +121,6 @@ export function AppSidebar() {
               >
                 <item.icon className="w-5 h-5" />
                 <span>{item.name}</span>
-                {item.name === 'Alerts' && (
-                  <span className="ml-auto flex items-center justify-center w-5 h-5 text-xs font-semibold rounded-full bg-destructive text-destructive-foreground">
-                    11
-                  </span>
-                )}
               </Link>
             );
           })}
