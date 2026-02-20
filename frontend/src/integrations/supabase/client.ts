@@ -16,9 +16,11 @@ if (!SUPABASE_PUBLISHABLE_KEY || SUPABASE_PUBLISHABLE_KEY === 'your-anon-public-
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
+// Use sessionStorage so the session does not persist across tabs or after closing the browser.
+// This prevents visitors from being automatically signed in as a previous user (e.g. admin).
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: {
-    storage: localStorage,
+    storage: typeof window !== 'undefined' ? window.sessionStorage : undefined,
     persistSession: true,
     autoRefreshToken: true,
   },
