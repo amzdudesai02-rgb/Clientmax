@@ -21,9 +21,11 @@ const Activity = () => {
   const [typeFilter, setTypeFilter] = useState('all');
   const [teamFilter, setTeamFilter] = useState('all');
 
+  const safeLogEntries = Array.isArray(logEntries) ? logEntries : [];
+
   const activities: Activity[] = useMemo(
     () =>
-      logEntries
+      safeLogEntries
         .filter((e) => {
           const matchSearch =
             !search ||
@@ -43,10 +45,10 @@ const Activity = () => {
           timestamp: e.created_at,
           performedBy: e.performed_by,
         })),
-    [logEntries, search, typeFilter, teamFilter]
+    [safeLogEntries, search, typeFilter, teamFilter]
   );
 
-  const teamMembers = useMemo(() => Array.from(new Set(logEntries.map((e) => e.performed_by))).sort(), [logEntries]);
+  const teamMembers = useMemo(() => Array.from(new Set(safeLogEntries.map((e) => e.performed_by))).sort(), [safeLogEntries]);
 
   return (
     <AppLayout title="Activity Feed" subtitle="Track all actions taken across client accounts">

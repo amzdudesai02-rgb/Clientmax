@@ -18,19 +18,25 @@ export function useActivityLog() {
   const [loading, setLoading] = useState(true);
 
   const fetchActivities = useCallback(async () => {
-    const { data, error } = await supabase
-      .from('activity_log')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .limit(100);
+    try {
+      const { data, error } = await supabase
+        .from('activity_log')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(100);
 
-    if (error) {
-      console.error('Error fetching activity log:', error);
+      if (error) {
+        console.error('Error fetching activity log:', error);
+        setActivities([]);
+      } else {
+        setActivities((data || []) as ActivityLogEntry[]);
+      }
+    } catch (e) {
+      console.error('Activity log fetch failed:', e);
       setActivities([]);
-    } else {
-      setActivities((data || []) as ActivityLogEntry[]);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }, []);
 
   useEffect(() => {

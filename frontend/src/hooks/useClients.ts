@@ -132,17 +132,19 @@ export function useEmployees() {
   const [employees, setEmployees] = useState<DBEmployee[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetch = async () => {
-      const { data } = await supabase
-        .from('employees')
-        .select('*')
-        .order('name');
-      setEmployees((data || []) as DBEmployee[]);
-      setLoading(false);
-    };
-    fetch();
+  const fetch = useCallback(async () => {
+    setLoading(true);
+    const { data } = await supabase
+      .from('employees')
+      .select('*')
+      .order('name');
+    setEmployees((data || []) as DBEmployee[]);
+    setLoading(false);
   }, []);
 
-  return { employees, loading };
+  useEffect(() => {
+    fetch();
+  }, [fetch]);
+
+  return { employees, loading, refetch: fetch };
 }

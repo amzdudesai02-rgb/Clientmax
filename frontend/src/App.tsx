@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { RootRedirect } from "@/components/RootRedirect";
 import { IdleLogout } from "@/components/IdleLogout";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { Loader2 } from "lucide-react";
 
 // Critical pages - load immediately (frequently used)
@@ -119,7 +120,9 @@ const App = () => (
             path="/activity"
             element={
               <ProtectedRoute userType="employee">
-                <LazyRoute><Activity /></LazyRoute>
+                <ErrorBoundary>
+                  <LazyRoute><Activity /></LazyRoute>
+                </ErrorBoundary>
               </ProtectedRoute>
             }
           />
