@@ -59,13 +59,36 @@ const TeamUtilizationForm = () => {
     );
   }
 
-  if (!teamLeadId || !teamLead) {
+  if (!teamLeadId) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Users className="w-6 h-6 text-primary" />
+            </div>
+            <CardTitle>Team Utilization Form</CardTitle>
+            <CardDescription>
+              Use the link shared with you to open this form. The link should include your team ID (e.g. /team-form?id=...).
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-center text-sm text-muted-foreground">
+              If you received this in error, please request a new link from your administrator.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (!teamLead) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <Card className="w-full max-w-md">
           <CardContent className="pt-6">
             <p className="text-center text-muted-foreground">
-              Invalid team lead ID. Please check the link and try again.
+              Invalid or expired link. Please check the link and try again, or request a new one.
             </p>
           </CardContent>
         </Card>

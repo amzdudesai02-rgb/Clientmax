@@ -200,11 +200,7 @@ const App = () => (
           />
           <Route
             path="/team-form"
-            element={
-              <ProtectedRoute userType="employee">
-                <LazyRoute><TeamUtilizationForm /></LazyRoute>
-              </ProtectedRoute>
-            }
+            element={<LazyRoute><TeamUtilizationForm /></LazyRoute>}
           />
           <Route
             path="/client-feedback"
