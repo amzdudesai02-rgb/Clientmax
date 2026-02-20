@@ -110,7 +110,7 @@ export function AddEmployeeModal({ onEmployeeAdded, trigger }: AddEmployeeModalP
         <DialogHeader>
           <DialogTitle>Add New Employee</DialogTitle>
           <DialogDescription>
-            Enter the employee details below. Name, email, and role are required.
+            Enter the employee details below. All fields are required.
           </DialogDescription>
         </DialogHeader>
 
@@ -122,7 +122,7 @@ export function AddEmployeeModal({ onEmployeeAdded, trigger }: AddEmployeeModalP
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Full Name</FormLabel>
+                    <FormLabel>Contact Name</FormLabel>
                     <FormControl>
                       <Input placeholder="Jane Smith" {...field} />
                     </FormControl>
@@ -146,54 +146,56 @@ export function AddEmployeeModal({ onEmployeeAdded, trigger }: AddEmployeeModalP
               />
             </div>
 
-            <FormField
-              control={form.control}
-              name="role"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Role</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select role" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="CEO">CEO</SelectItem>
-                      <SelectItem value="Employee">Employee</SelectItem>
-                      <SelectItem value="Specialist">Specialist</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="role"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Role</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select type" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="CEO">CEO</SelectItem>
+                        <SelectItem value="Employee">Employee</SelectItem>
+                        <SelectItem value="Specialist">Specialist</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <FormField
-              control={form.control}
-              name="teamLeadId"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Team Lead (optional)</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value ?? ''}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="None" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="">None</SelectItem>
-                      {teamLeads.map((tl) => (
-                        <SelectItem key={tl.id} value={tl.id}>
-                          {tl.name} ({tl.department})
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              <FormField
+                control={form.control}
+                name="teamLeadId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Assigned Team Lead</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value ?? ''}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select manager" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="">None</SelectItem>
+                        {teamLeads.map((tl) => (
+                          <SelectItem key={tl.id} value={tl.id}>
+                            {tl.name} ({tl.department})
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
             <DialogFooter className="pt-4">
               <Button
