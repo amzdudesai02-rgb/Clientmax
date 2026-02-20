@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useAuth } from '@/hooks/useAuth';
 import { useClients, useEmployees } from '@/hooks/useClients';
+import { AddEmployeeModal } from '@/components/employees/AddEmployeeModal';
 import { 
   Users, 
   UserPlus,
@@ -46,7 +47,7 @@ const clientTypeConfig = {
 const Portals = () => {
   const { employee, user: authUser, loading: authLoading } = useAuth();
   const { clients, loading: clientsLoading } = useClients();
-  const { employees, loading: employeesLoading } = useEmployees();
+  const { employees, loading: employeesLoading, refetch: refetchEmployees } = useEmployees();
   const [pageTab, setPageTab] = useState<'clients' | 'employees'>('clients');
   const [searchQuery, setSearchQuery] = useState('');
   const [clientFilter, setClientFilter] = useState('all');
@@ -299,12 +300,7 @@ const Portals = () => {
                     </CardContent>
                   </Card>
                 </div>
-                <Link to="/settings">
-                  <Button className="gap-2">
-                    <UserPlus className="w-4 h-4" />
-                    Add Employee
-                  </Button>
-                </Link>
+                <AddEmployeeModal onEmployeeAdded={() => refetchEmployees()} />
               </div>
 
               <div className="flex flex-wrap items-center gap-4">

@@ -142,9 +142,21 @@ export function useEmployees() {
     setLoading(false);
   }, []);
 
+  const addEmployee = useCallback(async (employee: Omit<DBEmployee, 'id' | 'created_at'>) => {
+    const { data, error: insertError } = await supabase
+      .from('employees')
+      .insert([employee])
+      .select()
+      .single();
+
+    if (insertError) throw insertError;
+    setEmployees(prev => [data as DBEmployee, ...prev]);
+    return data as DBEmployee;
+  }, []);
+
   useEffect(() => {
     fetch();
   }, [fetch]);
 
-  return { employees, loading, refetch: fetch };
+  return { employees, loading, addEmployee, refetch: fetch };
 }
